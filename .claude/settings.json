@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "context-engineering-fundamentals@context-engineering-marketplace": true,
+    "agent-architecture@context-engineering-marketplace": true,
+    "agent-development@context-engineering-marketplace": true
+  }
+}

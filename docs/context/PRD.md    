@@ -1,0 +1,94 @@
+# PRD.md — Product Requirements Document
+
+---
+
+## Problem
+
+Most habit trackers give users a rigid daily checklist. When life gets busy — midnight hangouts, pitching events, packed weekends — users miss habits, break streaks, and give up. The app never adapts to real life.
+
+---
+
+## Solution
+
+Users describe their week in plain natural language. The AI Coach reads their schedule, understands their energy levels, and generates a realistic habit plan that fits around their actual life — then fills it into a calendar automatically.
+
+---
+
+## Target Users
+
+| User | Description |
+|---|---|
+| Free User | Students trying habit tracking for the first time |
+| Premium User | Professionals/students with complex, unpredictable schedules |
+| Admin | Platform operator managing users and subscriptions |
+
+---
+
+## User Stories
+
+### Free User
+- As a free user, I can register and log in securely
+- As a free user, I can create up to 3 habits
+- As a free user, I can mark habits as complete each day
+- As a free user, I can see my current streak per habit
+- As a free user, I can see a basic dashboard of my progress
+- As a free user, I can upgrade to Premium
+
+### Premium User
+- As a premium user, I can do everything a free user can
+- As a premium user, I can create unlimited habits
+- As a premium user, I can chat with the AI Coach in natural language
+- As a premium user, the AI Coach reads my schedule and generates a habit plan
+- As a premium user, the AI-generated plan auto-fills my in-app calendar
+- As a premium user, I can connect my Google Calendar for two-way sync via MCP
+- As a premium user, I can see the leaderboard and compete with others
+- As a premium user, I receive a daily AI-generated motivational tip
+- As a premium user, if I miss a habit the AI automatically reschedules it
+
+### Admin
+- As an admin, I can view all users and their subscription tiers
+- As an admin, I can manually upgrade or downgrade a user's subscription
+- As an admin, I can deactivate or delete user accounts
+- As an admin, I can manage habit categories available to all users
+- As an admin, I can view platform analytics (DAU, habit completion rates, premium count)
+
+---
+
+## Features In Scope (MVP)
+
+- [x] Auth — register, login, logout, JWT
+- [x] Role system — free, premium, admin
+- [x] Habit CRUD — create, read, update, delete habits
+- [x] Daily habit logging — mark complete, view history
+- [x] Streak tracking — consecutive day counter
+- [x] AI Coach chat — natural language schedule input
+- [x] AI habit plan generation — outputs structured plan
+- [x] In-app calendar — weekly view with AI-filled events
+- [x] Google Calendar sync — via MCP (premium only)
+- [x] Leaderboard — weekly points ranking (premium only)
+- [x] Dashboard — progress rings, streak display
+- [x] Admin panel — user management, subscription control
+- [x] Subscription gating — enforce free vs premium server-side
+
+## Features Out of Scope (Future)
+
+- [ ] Mobile app
+- [ ] Real payment processing (Stripe) — admin manually upgrades for now
+- [ ] Apple Calendar sync
+- [ ] Social features (follow friends, share habits)
+- [ ] Push notifications
+
+---
+
+## UI/UX Vision
+
+- **Tropical Punch** theme: warm mango orange (#FF8243), soft pink (#FFC0CB), sunny yellow (#FCE883), ocean teal (#069494)
+- Warm cream (#FFF9F5) backgrounds with deep navy (#1A1A2E) dark mode
+- Satisfying checkmark animation on habit completion (orange → teal transition)
+- Streak flame that pulses between orange and yellow, grows with consecutive days
+- Smooth leaderboard number animations
+- Teal progress rings on dashboard
+- Chat bubble interface for AI Coach (orange for user, teal for AI)
+- Calendar animates as AI fills in the plan (teal event blocks)
+- Angular Animations + GSAP for all transitions
+- UI UX Pro Max skill for professional design intelligence
