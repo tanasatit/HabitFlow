@@ -15,8 +15,9 @@ Single deployable Go backend with strictly separated internal layers. Chosen bec
 
 ```
 ┌─────────────────────────────────────┐
-│         Angular 17 Frontend         │
-│  (Feature Modules + Route Guards)   │
+│     Next.js 14 Frontend             │
+│  (App Router + Server Components)   │
+│  (React + TypeScript + Tailwind)    │
 └────────────────┬────────────────────┘
                  │ HTTP REST / SSE
 ┌────────────────▼────────────────────┐
@@ -35,7 +36,8 @@ Single deployable Go backend with strictly separated internal layers. Chosen bec
 ┌────────────────▼────────────────────┐
 │         AI Service                  │
 │                                     │
-│  Claude API (claude-sonnet-4-6)     │
+│  Google Gemini API (free tier)      │
+│  Fallback: OpenRouter               │
 │  MCP Tools:                         │
 │   - read_google_calendar            │
 │   - write_habit_plan                │
@@ -63,35 +65,54 @@ Request → Middleware → Handler → Service → Repository → Database
 
 ---
 
-## Frontend Module Structure
+## Frontend Project Structure (Next.js 14 App Router)
 
 ```
-src/app/
-├── core/                    ← singleton, loaded once
-│   ├── services/
-│   │   ├── auth.service.ts
-│   │   └── api.service.ts
-│   ├── interceptors/
-│   │   ├── auth.interceptor.ts    ← attaches JWT to every request
-│   │   └── error.interceptor.ts   ← global error handling
-│   └── guards/
-│       ├── auth.guard.ts          ← redirect if not logged in
-│       └── role.guard.ts          ← redirect if wrong role/tier
+frontend/
+├── app/                          ← Next.js App Router (pages + layouts)
+│   ├── layout.tsx                ← root layout
+│   ├── page.tsx                  ← landing / redirect
+│   ├── (auth)/
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   ├── (app)/                    ← protected route group
+│   │   ├── layout.tsx            ← auth check wrapper
+│   │   ├── dashboard/page.tsx
+│   │   ├── habits/page.tsx
+│   │   ├── habits/[id]/page.tsx
+│   │   ├── ai-coach/page.tsx     ← premium only
+│   │   ├── calendar/page.tsx     ← premium only
+│   │   ├── leaderboard/page.tsx  ← premium only
+│   │   └── admin/                ← admin only
+│   │       ├── users/page.tsx
+│   │       └── analytics/page.tsx
 │
-├── shared/                  ← reusable, no business logic
-│   └── components/
-│       ├── habit-card/
-│       ├── progress-ring/
-│       ├── streak-badge/
-│       └── leaderboard-row/
+├── components/
+│   ├── ui/                       ← generic reusable (no business logic)
+│   │   ├── HabitCard.tsx
+│   │   ├── ProgressRing.tsx
+│   │   ├── StreakBadge.tsx
+│   │   └── LeaderboardRow.tsx
+│   └── features/                 ← feature-specific components
+│       ├── auth/
+│       ├── habits/
+│       ├── ai-coach/
+│       └── calendar/
 │
-└── features/                ← lazy loaded modules
-    ├── auth/
-    ├── habits/
-    ├── calendar/
-    ├── ai-coach/
-    ├── leaderboard/
-    └── admin/
+├── lib/
+│   ├── api.ts                    ← base fetch wrapper (attaches JWT)
+│   ├── auth.ts                   ← auth helpers + token storage
+│   └── hooks/
+│       ├── useAuth.ts
+│       ├── useHabits.ts
+│       └── useSSE.ts             ← SSE streaming hook for AI chat
+│
+├── types/
+│   ├── habit.ts                  ← IHabit, IHabitLog
+│   ├── user.ts                   ← IUser
+│   └── api.ts                    ← API response shapes
+│
+└── middleware.ts                 ← Next.js middleware for route protection
 ```
 
 ---
@@ -129,7 +150,7 @@ backend/
     │   ├── auth.go            ← validate JWT
     │   └── rbac.go            ← check role/subscription
     └── ai/
-        ├── client.go          ← Claude API client
+        ├── client.go          ← Gemini API client (OpenRouter fallback)
         └── tools.go           ← MCP tool definitions
 └── pkg/
     ├── database/
@@ -170,17 +191,18 @@ GET    /api/v1/admin/analytics      ← platform stats (admin)
 
 ```
 1. Frontend sends POST /api/v1/ai/chat with user message
-2. Go handler opens SSE stream back to Angular
-3. AI Service calls Claude API with:
+2. Go handler opens SSE stream back to Next.js
+3. AI Service calls Google Gemini API with:
    - system prompt (AI Coach persona)
    - user message
    - available MCP tools
-4. Claude decides which tools to call
+   (falls back to OpenRouter if Gemini quota exceeded)
+4. Gemini decides which tools to call
 5. Go executes tool calls (read calendar, get habits, etc.)
-6. Claude generates habit plan
+6. Gemini generates habit plan
 7. Go saves plan to calendar_events table
 8. Go streams response tokens back via SSE
-9. Angular renders response in real-time
+9. Next.js useSSE hook renders response in real-time
 ```
 
 ---
@@ -198,9 +220,13 @@ REDIS_URL=redis://...
 JWT_SECRET=...
 JWT_EXPIRY_HOURS=24
 
-# Claude AI
-CLAUDE_API_KEY=...
-CLAUDE_MODEL=claude-sonnet-4-6
+# Google Gemini AI (primary — free tier)
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-1.5-flash
+
+# OpenRouter (fallback)
+OPENROUTER_API_KEY=...
+OPENROUTER_MODEL=google/gemini-flash-1.5
 
 # Google Calendar (MCP)
 GOOGLE_CLIENT_ID=...

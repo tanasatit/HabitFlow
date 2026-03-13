@@ -17,12 +17,14 @@
 - [ ] Create `.env` file (never commit this)
 
 ### Frontend
-- [ ] `ng new frontend --routing --style=scss`
-- [ ] Install dependencies: `@angular/animations`, `gsap`
-- [ ] Set up `environments/environment.ts` with `apiUrl`
-- [ ] Create `core/` folder structure
-- [ ] Create `features/` folder with empty modules
-- [ ] Verify `ng serve` runs
+- [ ] `npx create-next-app@latest frontend --typescript --tailwind --app`
+- [ ] Install dependencies: `framer-motion`, `gsap`
+- [ ] Set up `.env.local` with `NEXT_PUBLIC_API_URL`
+- [ ] Create `components/ui/` and `components/features/` folder structure
+- [ ] Create `lib/api.ts` base fetch wrapper
+- [ ] Create `app/(app)/layout.tsx` protected route group
+- [ ] Set up `middleware.ts` for route protection
+- [ ] Verify `npm run dev` runs
 
 ### DevOps
 - [ ] `docker-compose.yml` with Go backend + Redis (Supabase is remote)
@@ -45,12 +47,12 @@
 - [ ] Test all auth endpoints with Postman/curl
 
 ### Frontend
-- [ ] `core/services/auth.service.ts` — register(), login(), logout(), currentUser signal
-- [ ] `core/interceptors/auth.interceptor.ts` — attach Bearer token to requests
-- [ ] `core/guards/auth.guard.ts` — redirect to /login if not authenticated
-- [ ] `core/guards/role.guard.ts` — redirect based on role/tier
-- [ ] `features/auth/login/` — login page component
-- [ ] `features/auth/register/` — register page component
+- [ ] `lib/auth.ts` — register(), login(), logout(), token storage (httpOnly cookie)
+- [ ] `lib/hooks/useAuth.ts` — auth state hook
+- [ ] `middleware.ts` — redirect to /login if no token
+- [ ] `app/(auth)/login/page.tsx` — login page
+- [ ] `app/(auth)/register/page.tsx` — register page
+- [ ] `app/(app)/layout.tsx` — server-side auth check wrapper
 - [ ] Wire up routes, test login flow end-to-end
 
 ---
@@ -71,15 +73,15 @@
 - [ ] Test free tier limit enforced correctly
 
 ### Frontend
-- [ ] `models/habit.interface.ts` — IHabit, IHabitLog
-- [ ] `core/services/habit.service.ts` — getAll, create, update, delete, logComplete
-- [ ] `shared/components/habit-card/` — reusable card with completion checkbox
-- [ ] `shared/components/streak-badge/` — streak counter display
-- [ ] `features/habits/habit-list/` — list of user's habits
-- [ ] `features/habits/habit-create/` — form to create new habit
-- [ ] `features/habits/habit-edit/` — edit existing habit
+- [ ] `types/habit.ts` — IHabit, IHabitLog interfaces
+- [ ] `lib/hooks/useHabits.ts` — getAll, create, update, delete, logComplete
+- [ ] `components/ui/HabitCard.tsx` — reusable card with completion checkbox
+- [ ] `components/ui/StreakBadge.tsx` — streak counter display
+- [ ] `app/(app)/habits/page.tsx` — list of user's habits
+- [ ] `components/features/habits/HabitCreateForm.tsx` — form to create new habit
+- [ ] `app/(app)/habits/[id]/page.tsx` — edit existing habit
 - [ ] Show upgrade prompt when free user hits 3 habit limit
-- [ ] Add satisfying checkmark animation on completion (Angular Animations)
+- [ ] Add satisfying checkmark animation on completion (Framer Motion)
 
 ---
 
@@ -92,9 +94,9 @@
 - [ ] GET /api/v1/habits/:id/stats — per-habit stats
 
 ### Frontend
-- [ ] `shared/components/progress-ring/` — animated SVG ring
-- [ ] `features/habits/dashboard/` — main dashboard page
-- [ ] Streak flame 🔥 animation (GSAP)
+- [ ] `components/ui/ProgressRing.tsx` — animated SVG ring (Framer Motion)
+- [ ] `app/(app)/dashboard/page.tsx` — main dashboard page
+- [ ] Streak flame animation (GSAP)
 - [ ] Weekly completion chart (simple bar chart)
 - [ ] Wire dashboard to real API data
 
@@ -110,11 +112,11 @@
 - [ ] Seed one admin user directly in Supabase
 
 ### Frontend
-- [ ] `core/guards/admin.guard.ts`
-- [ ] `features/admin/user-list/` — table of all users
-- [ ] `features/admin/user-detail/` — view + edit subscription tier
-- [ ] `features/admin/analytics/` — simple stats: total users, premium count, DAU
-- [ ] Admin nav sidebar
+- [ ] Admin route protection in `middleware.ts` (check role === 'admin')
+- [ ] `app/(app)/admin/users/page.tsx` — table of all users
+- [ ] `app/(app)/admin/users/[id]/page.tsx` — view + edit subscription tier
+- [ ] `app/(app)/admin/analytics/page.tsx` — simple stats: total users, premium count, DAU
+- [ ] Admin nav sidebar component
 
 ---
 
@@ -124,9 +126,9 @@
 ### Backend
 - [ ] `model/calendar_event.go` — CalendarEvent GORM model
 - [ ] `model/ai_conversation.go` — AIConversation model
-- [ ] `internal/ai/client.go` — Claude API client setup
+- [ ] `internal/ai/client.go` — Gemini API client setup (OpenRouter fallback)
 - [ ] `internal/ai/tools.go` — MCP tool definitions (read/write calendar, get habits, get stats)
-- [ ] `service/ai_service.go` — orchestrate Claude API call with tools + SSE streaming
+- [ ] `service/ai_service.go` — orchestrate Gemini API call with tools + SSE streaming
 - [ ] `handler/ai_handler.go` — POST /ai/chat (SSE endpoint)
 - [ ] `repository/calendar_repository.go` — CRUD for calendar events
 - [ ] `handler/calendar_handler.go` — GET /calendar, POST /calendar
@@ -134,10 +136,10 @@
 - [ ] Test AI generates plan and saves to DB
 
 ### Frontend
-- [ ] `core/services/ai.service.ts` — sendMessage() using EventSource (SSE)
-- [ ] `features/ai-coach/chat/` — chat bubble UI
-- [ ] Real-time streaming response display
-- [ ] `features/calendar/weekly-view/` — 7-day grid calendar
+- [ ] `lib/hooks/useSSE.ts` — EventSource hook for SSE streaming
+- [ ] `app/(app)/ai-coach/page.tsx` + `components/features/ai-coach/` — chat bubble UI
+- [ ] Real-time streaming response display (Framer Motion for tokens)
+- [ ] `app/(app)/calendar/page.tsx` — 7-day grid calendar
 - [ ] Calendar animates as AI fills in events
 - [ ] Show lock icon + upgrade prompt for free users
 
@@ -152,9 +154,9 @@
 - [ ] Cache result in Redis (refresh every 5 minutes)
 
 ### Frontend
-- [ ] `shared/components/leaderboard-row/` — single row with rank, name, points
-- [ ] `features/leaderboard/` — full leaderboard page
-- [ ] Smooth rank change animations (GSAP)
+- [ ] `components/ui/LeaderboardRow.tsx` — single row with rank, name, points
+- [ ] `app/(app)/leaderboard/page.tsx` — full leaderboard page
+- [ ] Smooth rank change animations (GSAP / Framer Motion)
 - [ ] Show lock + upgrade prompt for free users
 
 ---
@@ -179,10 +181,10 @@
 ## Phase 9 — DevSecOps Pipeline
 **Goal:** CI/CD working. Security scanning in pipeline.
 
-- [ ] `.github/workflows/ci.yml` — on every push: run Go tests, Angular lint, Semgrep security scan
-- [ ] `.github/workflows/deploy.yml` — on push to main: build Docker image, deploy to Railway
+- [ ] `.github/workflows/ci.yml` — on every push: run Go tests, Next.js lint (`next lint`), Semgrep security scan
+- [ ] `.github/workflows/deploy.yml` — on push to main: build Docker images, deploy to Railway
 - [ ] `Dockerfile` for Go backend
-- [ ] `Dockerfile` for Angular frontend (nginx)
+- [ ] `Dockerfile` for Next.js frontend (`next build` + `node server.js`)
 - [ ] Update `docker-compose.yml` for production
 - [ ] Set all secrets in GitHub Actions secrets
 - [ ] Verify full pipeline runs end-to-end

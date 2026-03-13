@@ -27,13 +27,14 @@
 
 | Layer | Technology |
 |---|---|
-| Frontend | Angular 17 |
-| Animations | Angular Animations + GSAP |
+| Frontend | Next.js 14 (React + TypeScript) |
+| Styling | Tailwind CSS |
+| Animations | Framer Motion + GSAP |
 | Backend | Go + Gin |
 | ORM | GORM |
 | Database | Supabase (Postgres) |
 | Cache | Redis |
-| AI | Claude API (claude-sonnet-4-6) |
+| AI | Google Gemini API (free tier) via OpenRouter fallback |
 | Calendar Sync | MCP — Google Calendar |
 | CI/CD | GitHub Actions |
 | Hosting | Railway |
@@ -45,7 +46,7 @@
 ```
 habitflow/
 ├── docs/context/        ← you are here
-├── frontend/            ← Angular 17 project
+├── frontend/            ← Next.js 14 (React + TypeScript) project
 ├── backend/             ← Go + Gin + GORM
 ├── docker-compose.yml
 ├── .github/workflows/

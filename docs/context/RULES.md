@@ -79,54 +79,67 @@ func (s *HabitService) Create(userID string, req CreateHabitRequest) (*model.Hab
 
 ---
 
-## Angular Rules
+## Next.js / React Rules
 
 ### Naming
-- Components: `PascalCase` → `HabitCardComponent`
-- Files: `kebab-case` → `habit-card.component.ts`
-- Services: `PascalCase` + `Service` suffix → `HabitService`
-- Interfaces: `PascalCase` with `I` prefix → `IHabit`, `IUser`
+- Components: `PascalCase` → `HabitCard`, `ProgressRing`
+- Files: `PascalCase` for components → `HabitCard.tsx`
+- Hooks: `camelCase` with `use` prefix → `useHabits.ts`, `useAuth.ts`
+- Types/Interfaces: `PascalCase` with `I` prefix → `IHabit`, `IUser`
 - Routes/paths: `kebab-case` → `/habit-list`, `/ai-coach`
 
 ### Component Rules
 ```typescript
-// Components never call HTTP directly
-// Always go through a service
+// Components never call fetch/API directly
+// Always go through a custom hook or lib/api.ts
 
 // ❌ Wrong
-constructor(private http: HttpClient) {}
-ngOnInit() { this.http.get('/api/habits').subscribe(...) }
+export default function HabitList() {
+  const [habits, setHabits] = useState([]);
+  useEffect(() => {
+    fetch('/api/habits').then(r => r.json()).then(setHabits);
+  }, []);
+}
 
 // ✅ Correct
-constructor(private habitService: HabitService) {}
-ngOnInit() { this.habitService.getAll().subscribe(...) }
+export default function HabitList() {
+  const { habits } = useHabits(); // custom hook handles fetching
+}
 ```
 
-### Service Rules
+### API Call Rules
 ```typescript
-// All API calls live in services
-// Use environment variables for base URL
-@Injectable({ providedIn: 'root' })
-export class HabitService {
-  private api = environment.apiUrl;
-  constructor(private http: HttpClient) {}
+// All API calls live in lib/api.ts or custom hooks
+// Always use the base fetch wrapper that attaches JWT
 
-  getAll(): Observable<IHabit[]> {
-    return this.http.get<IHabit[]>(`${this.api}/habits`);
+// lib/api.ts
+export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    ...options,
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...options?.headers },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+```
+
+### Route Protection Pattern
+```typescript
+// middleware.ts — Next.js middleware protects routes globally
+// Always check role AND subscription tier server-side (never trust client state)
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('token')?.value;
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 ```
 
-### Route Guard Pattern
-```typescript
-// Always check role AND subscription tier
-export const premiumGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  if (!auth.isLoggedIn()) return inject(Router).createUrlTree(['/login']);
-  if (auth.user().subscriptionTier !== 'premium') return inject(Router).createUrlTree(['/upgrade']);
-  return true;
-};
-```
+### Server vs Client Components
+- Default to **Server Components** — fetch data server-side when possible
+- Use `'use client'` only for interactivity (state, effects, event handlers)
+- Never put secrets or tokens in Client Components
 
 ---
 
