@@ -4,32 +4,31 @@
 
 ---
 
-## Phase 1 — Project Setup
+## Phase 1 — Project Setup ✅
 **Goal:** Running skeleton with nothing broken
 
 ### Backend
-- [ ] Init Go module (`go mod init habitflow`)
-- [ ] Install dependencies: Gin, GORM, postgres driver, jwt-go, uuid, godotenv
-- [ ] Create folder structure (`internal/handler`, `service`, `repository`, `model`, `middleware`, `ai`)
-- [ ] `pkg/config/config.go` — load `.env` variables
-- [ ] `pkg/database/supabase.go` — connect to Supabase via GORM
-- [ ] `cmd/server/main.go` — start server on port 8080, test DB connection
-- [ ] Create `.env` file (never commit this)
+- [x] Init Go module (`go mod init github.com/habitflow/api`)
+- [x] Install dependencies: Gin, GORM, postgres driver, jwt/v5, uuid, godotenv, go-redis
+- [x] Create folder structure (`internal/domain`, `internal/middleware`, `pkg/`)
+- [x] `pkg/config/config.go` — load `.env` variables with validation
+- [x] `pkg/database/supabase.go` — connect to Supabase via GORM with connection pooling
+- [x] `cmd/server/main.go` — start server on port 8080, `/api/v1/health` endpoint, graceful shutdown
+- [x] Create `.env.example` (never commit `.env`)
 
 ### Frontend
-- [ ] `npx create-next-app@latest frontend --typescript --tailwind --app`
-- [ ] Install dependencies: `framer-motion`, `gsap`
-- [ ] Set up `.env.local` with `NEXT_PUBLIC_API_URL`
-- [ ] Create `components/ui/` and `components/features/` folder structure
-- [ ] Create `lib/api.ts` base fetch wrapper
-- [ ] Create `app/(app)/layout.tsx` protected route group
-- [ ] Set up `middleware.ts` for route protection
-- [ ] Verify `npm run dev` runs
+- [x] `npx create-next-app@latest frontend --typescript --tailwind --app`
+- [x] Install dependencies: `framer-motion`, `gsap`
+- [x] Set up `.env.local.example` with `NEXT_PUBLIC_API_URL`
+- [x] Create `components/ui/` and `components/layout/` folder structure
+- [x] Create `lib/api.ts` base fetch wrapper
+- [x] Create stub pages: login, register, dashboard
+- [x] Set up `middleware.ts` for route protection
 
 ### DevOps
-- [ ] `docker-compose.yml` with Go backend + Redis (Supabase is remote)
-- [ ] `.gitignore` — exclude `.env`, `node_modules`, Go binaries
-- [ ] Initial commit: `"Initial Commit"` (required by professor)
+- [x] `docker-compose.yml` with Go backend + Redis (Supabase is remote)
+- [x] `.gitignore` — exclude `.env`, `node_modules`, Go binaries
+- [x] `backend/Dockerfile` — multi-stage Go build
 
 ---
 
