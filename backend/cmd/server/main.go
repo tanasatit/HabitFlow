@@ -9,7 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/habitflow/api/internal/domain/user"
+	"github.com/habitflow/api/internal/middleware"
 	"github.com/habitflow/api/pkg/config"
 	"github.com/habitflow/api/pkg/database"
 	"github.com/habitflow/api/pkg/response"
@@ -26,15 +30,39 @@ func main() {
 		log.Fatalf("database error: %v", err)
 	}
 
-	_ = db // will be wired into services in Phase 2+
+	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}); err != nil {
+		log.Fatalf("migrate error: %v", err)
+	}
 
 	r := gin.Default()
+
+	// CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{cfg.FrontendURL},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	// Wire dependencies
+	userRepo := user.NewRepository(db)
+	userSvc := user.NewService(userRepo, cfg)
+	userHandler := user.NewHandler(userSvc, cfg)
 
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
 			response.Success(c, gin.H{"status": "ok"})
 		})
+
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/register", userHandler.Register)
+			auth.POST("/login", userHandler.Login)
+			auth.POST("/logout", userHandler.Logout)
+			auth.GET("/me", middleware.Auth(cfg), userHandler.Me)
+		}
 	}
 
 	srv := &http.Server{

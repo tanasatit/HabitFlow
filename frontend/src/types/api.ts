@@ -1,38 +1,44 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: "free" | "pro" | "admin";
-  createdAt: string;
+export interface IApiResponse<T> {
+  data?: T
+  error?: string
+  message?: string
 }
 
-export interface Habit {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  frequency: "daily" | "weekly";
-  targetDays: number[];
-  streak: number;
-  createdAt: string;
+export interface IApiError {
+  error: string
+  message?: string
 }
 
-export interface HabitLog {
-  id: string;
-  habitId: string;
-  completedAt: string;
-  note?: string;
+export interface IApiListResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  message?: string
 }
 
-export interface AICoachResponse {
-  plan: HabitPlan[];
-  summary: string;
+export interface IUser {
+  id: string
+  email: string
+  name: string
+  role: 'free' | 'premium' | 'admin'
+  created_at: string
 }
 
-export interface HabitPlan {
-  title: string;
-  description: string;
-  frequency: "daily" | "weekly";
-  targetDays: number[];
-  rationale: string;
+export interface IHabit {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  frequency: 'daily' | 'weekly'
+  target_days: number[]
+  streak: number
+  created_at: string
+}
+
+export interface IHabitLog {
+  id: string
+  habit_id: string
+  completed_at: string
+  note?: string
 }
