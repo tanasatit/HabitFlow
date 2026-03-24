@@ -11,7 +11,13 @@ import (
 )
 
 func Connect(dsn string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	// PreferSimpleProtocol disables prepared statements, which is required for
+	// Supabase connections that go through PgBouncer in transaction mode.
+	dialector := postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true,
+	})
+	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {

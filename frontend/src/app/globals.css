@@ -10,6 +10,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* HabitFlow Tropical Punch palette */
+  --color-tropical-orange: #FF8243;
+  --color-tropical-pink: #FFC0CB;
+  --color-tropical-yellow: #FCE883;
+  --color-tropical-teal: #069494;
+  --color-tropical-cream: #FFF9F5;
+  --color-tropical-navy: #1A1A2E;
 }
 
 @media (prefers-color-scheme: dark) {

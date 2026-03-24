@@ -25,20 +25,4 @@ export interface IUser {
   created_at: string
 }
 
-export interface IHabit {
-  id: string
-  user_id: string
-  title: string
-  description: string
-  frequency: 'daily' | 'weekly'
-  target_days: number[]
-  streak: number
-  created_at: string
-}
-
-export interface IHabitLog {
-  id: string
-  habit_id: string
-  completed_at: string
-  note?: string
-}
+// IHabit and IHabitLog have been moved to types/habit.ts (Phase 3)

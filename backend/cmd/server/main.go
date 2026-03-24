@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
 	"github.com/habitflow/api/internal/middleware"
 	"github.com/habitflow/api/pkg/config"
@@ -30,7 +31,7 @@ func main() {
 		log.Fatalf("database error: %v", err)
 	}
 
-	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}); err != nil {
+	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}); err != nil {
 		log.Fatalf("migrate error: %v", err)
 	}
 
@@ -50,6 +51,10 @@ func main() {
 	userSvc := user.NewService(userRepo, cfg)
 	userHandler := user.NewHandler(userSvc, cfg)
 
+	habitRepo := habit.NewRepository(db)
+	habitSvc := habit.NewService(habitRepo, userRepo)
+	habitHandler := habit.NewHandler(habitSvc)
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
@@ -62,6 +67,18 @@ func main() {
 			auth.POST("/login", userHandler.Login)
 			auth.POST("/logout", userHandler.Logout)
 			auth.GET("/me", middleware.Auth(cfg), userHandler.Me)
+		}
+
+		// Habit routes — all require auth
+		habits := v1.Group("/habits")
+		habits.Use(middleware.Auth(cfg))
+		{
+			habits.GET("", habitHandler.List)
+			habits.POST("", habitHandler.Create)
+			habits.GET("/:id", habitHandler.GetByID)
+			habits.PUT("/:id", habitHandler.Update)
+			habits.DELETE("/:id", habitHandler.Delete)
+			habits.POST("/:id/log", habitHandler.LogCompletion)
 		}
 	}
 
