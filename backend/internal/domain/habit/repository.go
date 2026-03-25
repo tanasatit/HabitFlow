@@ -104,3 +104,27 @@ func (r *Repository) FindLogsByHabitIDAll(habitID uuid.UUID) ([]HabitLog, error)
 	}
 	return logs, nil
 }
+
+// FindLogsByUserIDSince returns all logs for a user since a given time.
+// Used by dashboard to compute weekly completion counts.
+func (r *Repository) FindLogsByUserIDSince(userID uuid.UUID, since time.Time) ([]HabitLog, error) {
+	var logs []HabitLog
+	if err := r.db.Where("user_id = ? AND completed_at >= ?", userID, since).
+		Order("completed_at DESC").
+		Find(&logs).Error; err != nil {
+		return nil, err
+	}
+	return logs, nil
+}
+
+// FindLogsByHabitIDSince returns logs for a specific habit since a given time.
+// Used by per-habit stats endpoint.
+func (r *Repository) FindLogsByHabitIDSince(habitID uuid.UUID, since time.Time) ([]HabitLog, error) {
+	var logs []HabitLog
+	if err := r.db.Where("habit_id = ? AND completed_at >= ?", habitID, since).
+		Order("completed_at DESC").
+		Find(&logs).Error; err != nil {
+		return nil, err
+	}
+	return logs, nil
+}

@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/habitflow/api/internal/domain/dashboard"
 	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
 	"github.com/habitflow/api/internal/middleware"
@@ -55,6 +56,9 @@ func main() {
 	habitSvc := habit.NewService(habitRepo, userRepo)
 	habitHandler := habit.NewHandler(habitSvc)
 
+	dashboardSvc := dashboard.NewService(habitSvc, habitRepo)
+	dashboardHandler := dashboard.NewHandler(dashboardSvc)
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
@@ -69,6 +73,9 @@ func main() {
 			auth.GET("/me", middleware.Auth(cfg), userHandler.Me)
 		}
 
+		// Dashboard route — requires auth
+		v1.GET("/dashboard", middleware.Auth(cfg), dashboardHandler.GetDashboard)
+
 		// Habit routes — all require auth
 		habits := v1.Group("/habits")
 		habits.Use(middleware.Auth(cfg))
@@ -79,6 +86,7 @@ func main() {
 			habits.PUT("/:id", habitHandler.Update)
 			habits.DELETE("/:id", habitHandler.Delete)
 			habits.POST("/:id/log", habitHandler.LogCompletion)
+			habits.GET("/:id/stats", habitHandler.GetStats)
 		}
 	}
 

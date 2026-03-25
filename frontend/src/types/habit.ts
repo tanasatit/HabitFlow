@@ -42,3 +42,20 @@ export interface IUpdateHabitInput {
   description?: string
   is_active?: boolean
 }
+
+export interface IDayCount {
+  date: string // "2026-03-25"
+  completed: boolean
+}
+
+export interface IHabitStats {
+  habit_id: string
+  name: string
+  category: string
+  current_streak: number
+  longest_streak: number
+  total_completed: number
+  completion_rate: number // 0.0 - 1.0, last 30 days
+  weekly_data: IDayCount[]
+  completed_today: boolean
+}

@@ -56,31 +56,31 @@
 
 ---
 
-## Phase 3 — Habits CRUD
+## Phase 3 — Habits CRUD ✅
 **Goal:** Users can create, view, edit, delete habits. Free tier limit enforced.
 
 ### Backend
-- [ ] `model/habit.go` — Habit GORM model
-- [ ] `model/habit_log.go` — HabitLog GORM model
-- [ ] Run `AutoMigrate` for new tables
-- [ ] `repository/habit_repository.go` — CRUD + CountByUserID
-- [ ] `service/habit_service.go` — full CRUD + free tier limit check (max 3)
-- [ ] `handler/habit_handler.go` — all habit endpoints
-- [ ] `middleware/rbac.go` — RequirePremium(), RequireRole()
-- [ ] Apply auth middleware to habit routes
-- [ ] POST /habits/:id/log — mark habit complete today
-- [ ] Test free tier limit enforced correctly
+- [x] `model/habit.go` — Habit GORM model
+- [x] `model/habit_log.go` — HabitLog GORM model
+- [x] Run `AutoMigrate` for new tables
+- [x] `repository/habit_repository.go` — CRUD + CountByUserID
+- [x] `service/habit_service.go` — full CRUD + free tier limit check (max 3)
+- [x] `handler/habit_handler.go` — all habit endpoints
+- [x] `middleware/rbac.go` — RequirePremium(), RequireRole()
+- [x] Apply auth middleware to habit routes
+- [x] POST /habits/:id/log — mark habit complete today
+- [x] Test free tier limit enforced correctly
 
 ### Frontend
-- [ ] `types/habit.ts` — IHabit, IHabitLog interfaces
-- [ ] `lib/hooks/useHabits.ts` — getAll, create, update, delete, logComplete
-- [ ] `components/ui/HabitCard.tsx` — reusable card with completion checkbox
-- [ ] `components/ui/StreakBadge.tsx` — streak counter display
-- [ ] `app/(app)/habits/page.tsx` — list of user's habits
-- [ ] `components/features/habits/HabitCreateForm.tsx` — form to create new habit
-- [ ] `app/(app)/habits/[id]/page.tsx` — edit existing habit
-- [ ] Show upgrade prompt when free user hits 3 habit limit
-- [ ] Add satisfying checkmark animation on completion (Framer Motion)
+- [x] `types/habit.ts` — IHabit, IHabitLog interfaces
+- [x] `lib/hooks/useHabits.ts` — getAll, create, update, delete, logComplete
+- [x] `components/ui/HabitCard.tsx` — reusable card with completion checkbox
+- [x] `components/ui/StreakBadge.tsx` — streak counter display
+- [x] `app/(app)/habits/page.tsx` — list of user's habits
+- [x] `components/features/habits/HabitCreateForm.tsx` — form to create new habit
+- [x] `app/(app)/habits/[id]/page.tsx` — edit existing habit
+- [x] Show upgrade prompt when free user hits 3 habit limit
+- [x] Add satisfying checkmark animation on completion (Framer Motion)
 
 ---
 

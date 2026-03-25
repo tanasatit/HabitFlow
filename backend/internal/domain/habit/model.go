@@ -61,3 +61,22 @@ type HabitWithStreak struct {
 	CurrentStreak  int  `json:"current_streak"`
 	CompletedToday bool `json:"completed_today"`
 }
+
+// DayCount represents a single day's completion status for a habit.
+type DayCount struct {
+	Date      string `json:"date"`      // "2006-01-02"
+	Completed bool   `json:"completed"`
+}
+
+// HabitStats contains detailed statistics for a single habit.
+type HabitStats struct {
+	HabitID        uuid.UUID  `json:"habit_id"`
+	Name           string     `json:"name"`
+	Category       string     `json:"category"`
+	CurrentStreak  int        `json:"current_streak"`
+	LongestStreak  int        `json:"longest_streak"`
+	TotalCompleted int        `json:"total_completed"`
+	CompletionRate float64    `json:"completion_rate"` // 0.0 - 1.0, last 30 days
+	WeeklyData     []DayCount `json:"weekly_data"`     // last 7 days
+	CompletedToday bool       `json:"completed_today"`
+}

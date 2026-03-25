@@ -6,6 +6,7 @@ import type {
   IHabit,
   IHabitWithStreak,
   IHabitLog,
+  IHabitStats,
   ICreateHabitInput,
   IUpdateHabitInput,
 } from '@/types/habit'
@@ -33,6 +34,11 @@ export function useHabits() {
 
   const getHabitById = useCallback(async (id: string): Promise<IHabitWithStreak | null> => {
     const res = await api.get<IHabitWithStreak>(`/habits/${id}`)
+    return res.data ?? null
+  }, [])
+
+  const getHabitStats = useCallback(async (id: string): Promise<IHabitStats | null> => {
+    const res = await api.get<IHabitStats>(`/habits/${id}/stats`)
     return res.data ?? null
   }, [])
 
@@ -91,6 +97,7 @@ export function useHabits() {
     loading,
     error,
     getHabitById,
+    getHabitStats,
     createHabit,
     updateHabit,
     deleteHabit,

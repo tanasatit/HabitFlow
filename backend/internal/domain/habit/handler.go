@@ -157,6 +157,37 @@ func (h *Handler) Delete(c *gin.Context) {
 	response.Success(c, gin.H{"message": "habit deleted"})
 }
 
+// GetStats handles GET /api/v1/habits/:id/stats
+func (h *Handler) GetStats(c *gin.Context) {
+	habitID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "invalid habit id")
+		return
+	}
+
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.Unauthorized(c)
+		return
+	}
+
+	stats, err := h.svc.GetHabitStats(userID, habitID)
+	if err != nil {
+		if errors.Is(err, ErrHabitNotFound) {
+			response.NotFound(c, err.Error())
+			return
+		}
+		if errors.Is(err, ErrNotOwner) {
+			response.Error(c, http.StatusForbidden, err.Error())
+			return
+		}
+		response.InternalError(c)
+		return
+	}
+
+	response.Success(c, stats)
+}
+
 func (h *Handler) LogCompletion(c *gin.Context) {
 	habitID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
