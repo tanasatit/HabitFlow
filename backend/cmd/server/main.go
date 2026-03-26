@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/habitflow/api/internal/domain/admin"
 	"github.com/habitflow/api/internal/domain/dashboard"
 	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
@@ -59,6 +60,9 @@ func main() {
 	dashboardSvc := dashboard.NewService(habitSvc, habitRepo)
 	dashboardHandler := dashboard.NewHandler(dashboardSvc)
 
+	adminSvc := admin.NewService(userRepo, habitRepo, db)
+	adminHandler := admin.NewHandler(adminSvc)
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
@@ -87,6 +91,17 @@ func main() {
 			habits.DELETE("/:id", habitHandler.Delete)
 			habits.POST("/:id/log", habitHandler.LogCompletion)
 			habits.GET("/:id/stats", habitHandler.GetStats)
+		}
+
+		// Admin routes — requires auth + admin role
+		adminRoutes := v1.Group("/admin")
+		adminRoutes.Use(middleware.Auth(cfg), middleware.RequireRole("admin"))
+		{
+			adminRoutes.GET("/users", adminHandler.ListUsers)
+			adminRoutes.GET("/users/:id", adminHandler.GetUser)
+			adminRoutes.PUT("/users/:id", adminHandler.UpdateUser)
+			adminRoutes.DELETE("/users/:id", adminHandler.DeleteUser)
+			adminRoutes.GET("/analytics", adminHandler.Analytics)
 		}
 	}
 

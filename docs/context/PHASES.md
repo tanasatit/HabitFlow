@@ -84,20 +84,20 @@
 
 ---
 
-## Phase 4 — Dashboard & Streaks
+## Phase 4 — Dashboard & Streaks ✅
 **Goal:** Users see progress. Streak counter works correctly.
 
 ### Backend
-- [ ] Streak calculation logic in `habit_service.go`
-- [ ] GET /api/v1/dashboard — returns user stats (streak, completion rate, weekly summary)
-- [ ] GET /api/v1/habits/:id/stats — per-habit stats
+- [x] Streak calculation logic in `habit_service.go`
+- [x] GET /api/v1/dashboard — returns user stats (streak, completion rate, weekly summary)
+- [x] GET /api/v1/habits/:id/stats — per-habit stats
 
 ### Frontend
-- [ ] `components/ui/ProgressRing.tsx` — animated SVG ring (Framer Motion)
-- [ ] `app/(app)/dashboard/page.tsx` — main dashboard page
-- [ ] Streak flame animation (GSAP)
-- [ ] Weekly completion chart (simple bar chart)
-- [ ] Wire dashboard to real API data
+- [x] `components/ui/ProgressRing.tsx` — animated SVG ring (Framer Motion)
+- [x] `app/(app)/dashboard/page.tsx` — main dashboard page
+- [x] Streak flame animation (GSAP)
+- [x] Weekly completion chart (simple bar chart)
+- [x] Wire dashboard to real API data
 
 ---
 

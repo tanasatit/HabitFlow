@@ -59,8 +59,8 @@ habitflow/
 
 > **Update this section every time you start a new phase.**
 
-- Current Phase: `Phase 1 — Project Setup`
-- Current Task: `[write what you are doing right now]`
+- Current Phase: `Phase 5 — Admin Panel`
+- Current Task: `PRP-005 created. Ready for implementation.`
 - Blocked By: `nothing`
 
 ---
