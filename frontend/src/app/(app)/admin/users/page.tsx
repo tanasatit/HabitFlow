@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAdminUsers } from '@/lib/hooks/useAdmin'
+import { useAuth } from '@/lib/hooks/useAuth'
 import { UserTable } from '@/components/features/admin/UserTable'
 
 function TableSkeleton() {
@@ -33,6 +34,7 @@ function TableSkeleton() {
 
 export default function AdminUsersPage() {
   const router = useRouter()
+  const { user: currentUser } = useAuth()
   const {
     users,
     total,
@@ -156,7 +158,7 @@ export default function AdminUsersPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
-          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
+          <UserTable users={users} currentUserId={currentUser?.id} onEdit={handleEdit} onDelete={handleDelete} />
         </motion.div>
       )}
 

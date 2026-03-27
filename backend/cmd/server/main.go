@@ -11,6 +11,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 
 	"github.com/habitflow/api/internal/domain/admin"
 	"github.com/habitflow/api/internal/domain/dashboard"
@@ -35,6 +38,10 @@ func main() {
 
 	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}); err != nil {
 		log.Fatalf("migrate error: %v", err)
+	}
+
+	if err := seedAdminUser(db); err != nil {
+		log.Fatalf("seed admin error: %v", err)
 	}
 
 	r := gin.Default()
@@ -129,4 +136,34 @@ func main() {
 		log.Fatalf("forced shutdown: %v", err)
 	}
 	log.Println("Server stopped")
+}
+
+func seedAdminUser(db *gorm.DB) error {
+	email := os.Getenv("ADMIN_EMAIL")
+	if email == "" {
+		email = "admin@habitflow.local"
+	}
+	password := os.Getenv("ADMIN_PASSWORD")
+	if password == "" {
+		password = "Admin1234!"
+	}
+
+	var existing user.User
+	if err := db.Where("email = ?", email).First(&existing).Error; err == nil {
+		return nil // already exists
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	admin := &user.User{
+		ID:           uuid.New(),
+		Email:        email,
+		PasswordHash: string(hash),
+		Name:         "Admin",
+		Role:         user.RoleAdmin,
+	}
+	return db.Create(admin).Error
 }

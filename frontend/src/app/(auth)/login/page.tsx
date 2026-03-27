@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { authApi } from '@/lib/auth'
+import { useAuth } from '@/lib/hooks/useAuth'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,11 +19,11 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const res = await authApi.login({ email, password })
+    const err = await login({ email, password })
     setLoading(false)
 
-    if (res.error) {
-      setError(res.error)
+    if (err) {
+      setError(err)
       return
     }
 

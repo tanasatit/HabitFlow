@@ -5,6 +5,7 @@ import type { IUserDetail } from '@/types/admin'
 
 interface UserTableProps {
   users: IUserDetail[]
+  currentUserId?: string
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }
@@ -68,7 +69,7 @@ function DeleteConfirm({
   )
 }
 
-export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
+export function UserTable({ users, currentUserId, onEdit, onDelete }: UserTableProps) {
   const [pendingDelete, setPendingDelete] = useState<IUserDetail | null>(null)
 
   if (users.length === 0) {
@@ -164,8 +165,10 @@ export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
                     </button>
                     <button
                       onClick={() => setPendingDelete(user)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                      disabled={user.id === currentUserId}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-red-900/40 disabled:hover:text-red-400"
                       aria-label={`Delete ${user.name || user.email}`}
+                      title={user.id === currentUserId ? 'Cannot delete your own account' : undefined}
                     >
                       Delete
                     </button>

@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { authApi } from '@/lib/auth'
+import { useAuth } from '@/lib/hooks/useAuth'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { register } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,11 +20,11 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
 
-    const res = await authApi.register({ name, email, password })
+    const err = await register({ name, email, password })
     setLoading(false)
 
-    if (res.error) {
-      setError(res.error)
+    if (err) {
+      setError(err)
       return
     }
 
