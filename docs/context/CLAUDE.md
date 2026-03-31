@@ -59,9 +59,21 @@ habitflow/
 
 > **Update this section every time you start a new phase.**
 
-- Current Phase: `Phase 5 — Admin Panel`
-- Current Task: `PRP-005 created. Ready for implementation.`
+- Current Phase: `Phase 6 — Calendar & AI Coach`
+- Current Task: `Planning phase 6`
 - Blocked By: `nothing`
+
+---
+
+## Doc Folder Conventions
+
+| Folder | What Goes Here |
+|---|---|
+| `docs/context/` | Architecture, rules, database schema, roles, phases, CLAUDE.md |
+| `docs/prp/` | Phase requirement plans — named `PRP-00N-phaseN-slug.md` |
+| `docs/adr/` | Architecture decision records |
+
+**Never place PRP files inside `docs/context/`.**
 
 ---
 
@@ -72,3 +84,4 @@ habitflow/
 3. Never trust the frontend for role/subscription checks — always enforce server-side
 4. Never put secrets or API keys in code — use environment variables
 5. Commit message format: `feat:`, `fix:`, `chore:`, `docs:`
+6. Always save PRP files to `docs/prp/` with the naming convention `PRP-00N-phaseN-slug.md`

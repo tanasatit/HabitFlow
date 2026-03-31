@@ -101,21 +101,21 @@
 
 ---
 
-## Phase 5 — Admin Panel
+## Phase 5 — Admin Panel ✅
 **Goal:** Admin can manage users and subscriptions.
 
 ### Backend
-- [ ] `handler/admin_handler.go` — ListUsers, UpdateUser, DeleteUser, Analytics
-- [ ] `service/admin_service.go` — business logic
-- [ ] Apply admin route group with RequireRole("admin") middleware
-- [ ] Seed one admin user directly in Supabase
+- [x] `handler/admin_handler.go` — ListUsers, UpdateUser, DeleteUser, Analytics
+- [x] `service/admin_service.go` — business logic
+- [x] Apply admin route group with RequireRole("admin") middleware
+- [x] Seed one admin user directly in Supabase
 
 ### Frontend
-- [ ] Admin route protection in `middleware.ts` (check role === 'admin')
-- [ ] `app/(app)/admin/users/page.tsx` — table of all users
-- [ ] `app/(app)/admin/users/[id]/page.tsx` — view + edit subscription tier
-- [ ] `app/(app)/admin/analytics/page.tsx` — simple stats: total users, premium count, DAU
-- [ ] Admin nav sidebar component
+- [x] Admin route protection in `middleware.ts` (check role === 'admin')
+- [x] `app/(app)/admin/users/page.tsx` — table of all users
+- [x] `app/(app)/admin/users/[id]/page.tsx` — view + edit subscription tier
+- [x] `app/(app)/admin/analytics/page.tsx` — simple stats: total users, premium count, DAU
+- [x] Admin nav sidebar component
 
 ---
 
