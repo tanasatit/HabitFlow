@@ -1,1 +1,0 @@
-- [project_phase6.md](project_phase6.md) — Phase 6 (Calendar & AI Coach) reviewed on 2026-03-31; known patterns and issues catalogued
