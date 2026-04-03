@@ -15,7 +15,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	internalai "github.com/habitflow/api/internal/ai"
 	"github.com/habitflow/api/internal/domain/admin"
+	"github.com/habitflow/api/internal/domain/aicoach"
+	"github.com/habitflow/api/internal/domain/calendar"
 	"github.com/habitflow/api/internal/domain/dashboard"
 	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
@@ -36,7 +39,7 @@ func main() {
 		log.Fatalf("database error: %v", err)
 	}
 
-	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}); err != nil {
+	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}, &calendar.CalendarEvent{}, &aicoach.AIConversation{}); err != nil {
 		log.Fatalf("migrate error: %v", err)
 	}
 
@@ -69,6 +72,19 @@ func main() {
 
 	adminSvc := admin.NewService(userRepo, habitRepo, db)
 	adminHandler := admin.NewHandler(adminSvc)
+
+	if cfg.GeminiAPIKey == "" && cfg.OpenRouterAPIKey == "" {
+		log.Println("WARNING: GEMINI_API_KEY and OPENROUTER_API_KEY are both unset — AI chat will return errors at runtime")
+	}
+
+	calendarRepo := calendar.NewRepository(db)
+	calendarSvc := calendar.NewService(calendarRepo)
+	calendarHandler := calendar.NewHandler(calendarSvc)
+
+	aiClient := internalai.NewClient(cfg.GeminiAPIKey, cfg.GeminiModel, cfg.OpenRouterAPIKey, cfg.OpenRouterModel)
+	aiCoachRepo := aicoach.NewRepository(db)
+	aiCoachSvc := aicoach.NewService(aiClient, habitSvc, habitRepo, calendarSvc, dashboardSvc, aiCoachRepo)
+	aiCoachHandler := aicoach.NewHandler(aiCoachSvc)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -109,6 +125,16 @@ func main() {
 			adminRoutes.PUT("/users/:id", adminHandler.UpdateUser)
 			adminRoutes.DELETE("/users/:id", adminHandler.DeleteUser)
 			adminRoutes.GET("/analytics", adminHandler.Analytics)
+		}
+
+		// Premium routes — requires auth + premium subscription
+		premium := v1.Group("")
+		premium.Use(middleware.Auth(cfg), middleware.RequirePremium())
+		{
+			premium.POST("/ai/chat", aiCoachHandler.Chat)
+			premium.GET("/calendar", calendarHandler.GetEvents)
+			premium.POST("/calendar", calendarHandler.CreateEvent)
+			premium.DELETE("/calendar/:id", calendarHandler.DeleteEvent)
 		}
 	}
 

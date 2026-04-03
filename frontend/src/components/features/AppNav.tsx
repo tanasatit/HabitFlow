@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 
 const NAV_LINKS = [
@@ -30,6 +31,44 @@ const NAV_LINKS = [
         aria-hidden="true"
       >
         <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11V15a1.5 1.5 0 0 0 2.3 1.269l9.344-5.447a1.5 1.5 0 0 0 0-2.538L6.3 2.84Z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/ai-coach',
+    label: 'AI Coach',
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-4 h-4"
+        aria-hidden="true"
+      >
+        <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/calendar',
+    label: 'Calendar',
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-4 h-4"
+        aria-hidden="true"
+      >
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
   },
@@ -64,20 +103,20 @@ export function AppNav() {
   return (
     <nav className="flex flex-col gap-1 mt-4 flex-1" aria-label="Main navigation">
       {NAV_LINKS.map((link) => (
-        <a key={link.href} href={link.href} className={LINK_CLASS}>
+        <Link key={link.href} href={link.href} className={LINK_CLASS}>
           {link.icon}
           {link.label}
-        </a>
+        </Link>
       ))}
 
       {user?.role === 'admin' && (
-        <a
+        <Link
           href={ADMIN_LINK.href}
           className={`${LINK_CLASS} mt-2 border-t border-gray-800 pt-3`}
         >
           {ADMIN_LINK.icon}
           {ADMIN_LINK.label}
-        </a>
+        </Link>
       )}
 
       {user && (

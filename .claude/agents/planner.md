@@ -33,7 +33,9 @@ YOUR WORKFLOW:
    - Testing checklist: what to verify when done
 
 3. Format the PRP as a markdown document saved to:
-   docs/context/PRP-phase-[N].md
+   docs/prp/PRP-00N-phaseN-slug.md
+   Example: docs/prp/PRP-006-phase6-calendar-ai.md
+   NEVER save PRPs to docs/context/
 
 RULES:
 - Never write implementation code — only the plan

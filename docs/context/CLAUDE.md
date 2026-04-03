@@ -45,7 +45,16 @@
 
 ```
 habitflow/
-├── docs/context/        ← you are here
+├── docs/
+│   ├── context/         ← CLAUDE.md, PRD.md, ARCHITECTURE.md, RULES.md, DATABASE.md, ROLES.md, PHASES.md
+│   ├── prp/             ← PRP-00N-phaseN-slug.md (one per phase)
+│   └── adr/             ← ADR-NNN-title.md (numbered, no versioning)
+├── .claude/
+│   ├── agents/          ← agent definition files (planner.md, backend.md, etc.)
+│   └── agent-memory/    ← persistent agent memory (one subdir per agent)
+│       ├── planner/     ← planner agent memory + MEMORY.md index
+│       ├── backend/     ← backend agent memory + MEMORY.md index
+│       └── reviewer/    ← reviewer agent memory + MEMORY.md index
 ├── frontend/            ← Next.js 14 (React + TypeScript) project
 ├── backend/             ← Go + Gin + GORM
 ├── docker-compose.yml
@@ -60,20 +69,25 @@ habitflow/
 > **Update this section every time you start a new phase.**
 
 - Current Phase: `Phase 6 — Calendar & AI Coach`
-- Current Task: `Planning phase 6`
+- Current Task: `Implementation complete — testing`
 - Blocked By: `nothing`
 
 ---
 
-## Doc Folder Conventions
+## Doc & Memory Folder Conventions
 
-| Folder | What Goes Here |
-|---|---|
-| `docs/context/` | Architecture, rules, database schema, roles, phases, CLAUDE.md |
-| `docs/prp/` | Phase requirement plans — named `PRP-00N-phaseN-slug.md` |
-| `docs/adr/` | Architecture decision records |
+| Folder | What Goes Here | Naming |
+|---|---|---|
+| `docs/context/` | CLAUDE.md, PRD, ARCHITECTURE, RULES, DATABASE, ROLES, PHASES | any name |
+| `docs/prp/` | Phase requirement plans | `PRP-00N-phaseN-slug.md` |
+| `docs/adr/` | Architecture decision records | `ADR-NNN-title.md` (no versioning — update in place) |
+| `.claude/agents/` | Agent definition files | `[agent-name].md` |
+| `.claude/agent-memory/[agent]/` | Persistent agent memories | topic-based `.md` files + `MEMORY.md` index |
 
-**Never place PRP files inside `docs/context/`.**
+**Rules:**
+- Never place PRP files inside `docs/context/`
+- Never place agent memory files inside `frontend/` or `backend/` subdirectories — always at project root `.claude/agent-memory/`
+- ADRs are updated in place, not versioned (no `v1`/`v2` files)
 
 ---
 

@@ -8,13 +8,16 @@ import (
 )
 
 type Config struct {
-	Port           string
-	SupabaseDBURL  string
-	JWTSecret      string
-	JWTExpiryHours int
-	GeminiAPIKey   string
-	RedisURL       string
-	FrontendURL    string
+	Port            string
+	SupabaseDBURL   string
+	JWTSecret       string
+	JWTExpiryHours  int
+	GeminiAPIKey    string
+	GeminiModel     string
+	OpenRouterAPIKey string
+	OpenRouterModel  string
+	RedisURL        string
+	FrontendURL     string
 }
 
 func Load() (*Config, error) {
@@ -22,13 +25,16 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		Port:           getEnv("PORT", "8080"),
-		SupabaseDBURL:  os.Getenv("SUPABASE_DB_URL"),
-		JWTSecret:      os.Getenv("JWT_SECRET"),
-		JWTExpiryHours: getEnvInt("JWT_EXPIRY_HOURS", 24),
-		GeminiAPIKey:   os.Getenv("GEMINI_API_KEY"),
-		RedisURL:       getEnv("REDIS_URL", "redis://localhost:6379"),
-		FrontendURL:    getEnv("FRONTEND_URL", "http://localhost:3000"),
+		Port:             getEnv("PORT", "8080"),
+		SupabaseDBURL:    os.Getenv("SUPABASE_DB_URL"),
+		JWTSecret:        os.Getenv("JWT_SECRET"),
+		JWTExpiryHours:   getEnvInt("JWT_EXPIRY_HOURS", 24),
+		GeminiAPIKey:     os.Getenv("GEMINI_API_KEY"),
+		GeminiModel:      getEnv("GEMINI_MODEL", "gemini-2.0-flash"),
+		OpenRouterAPIKey: os.Getenv("OPENROUTER_API_KEY"),
+		OpenRouterModel:  getEnv("OPENROUTER_MODEL", "google/gemini-flash-1.5"),
+		RedisURL:         getEnv("REDIS_URL", "redis://localhost:6379"),
+		FrontendURL:      getEnv("FRONTEND_URL", "http://localhost:3000"),
 	}
 
 	if err := cfg.validate(); err != nil {
