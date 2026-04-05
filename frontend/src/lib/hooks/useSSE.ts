@@ -42,8 +42,9 @@ export function useSSE() {
       const reader = resp.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      let finished = false
 
-      while (true) {
+      while (!finished) {
         const { done, value } = await reader.read()
         if (done) break
 
@@ -71,16 +72,20 @@ export function useSSE() {
               }
               case 'done':
                 options.onDone(event.data)
+                finished = true
                 break
               case 'error':
                 options.onError(event.data)
+                finished = true
                 break
             }
           } catch {
             // skip malformed lines
           }
+          if (finished) break
         }
       }
+      reader.cancel()
     } catch (err: unknown) {
       if (err instanceof Error && err.name !== 'AbortError') {
         options.onError(err.message)

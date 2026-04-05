@@ -34,7 +34,7 @@ export function ChatInput({ onSend, disabled }: Props) {
           disabled={disabled}
           placeholder="Describe your week or ask for a habit plan..."
           rows={2}
-          className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
           onClick={handleSend}

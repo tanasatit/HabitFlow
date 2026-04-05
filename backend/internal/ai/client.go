@@ -133,6 +133,7 @@ type geminiBody struct {
 	SystemInstruction *geminiSystemInstruction `json:"system_instruction,omitempty"`
 	Contents          []geminiContent          `json:"contents"`
 	Tools             []ToolDef                `json:"tools,omitempty"`
+	ToolConfig map[string]any `json:"toolConfig,omitempty"`
 }
 
 func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- StreamChunk) (*ChatResponse, error) {
@@ -177,6 +178,7 @@ func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- St
 		SystemInstruction: sysInstruction,
 		Contents:          contents,
 		Tools:             req.Tools,
+		ToolConfig: map[string]any{"functionCallingConfig": map[string]any{"mode": "AUTO"}},
 	}
 
 	bodyBytes, err := json.Marshal(body)

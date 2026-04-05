@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	internalai "github.com/habitflow/api/internal/ai"
@@ -12,18 +13,21 @@ import (
 	"github.com/habitflow/api/internal/domain/habit"
 )
 
-const systemPrompt = `You are HabitFlow AI Coach. You help users build realistic weekly habit plans.
+func buildSystemPrompt() string {
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	weekday := now.Weekday().String()
+	return `You are HabitFlow AI Coach — a concise, action-oriented habit planning assistant.
 
-You have access to tools that let you read the user's habits, stats, and calendar, and write new calendar events. Always check the user's existing habits and schedule before making suggestions.
+TODAY: ` + today + ` (` + weekday + `)
 
-When the user describes their week or asks for a plan:
-1. Call get_user_habits to see what habits they have
-2. Call get_user_stats to understand their current streaks and completion rates
-3. Call get_calendar_events to check their existing schedule
-4. Suggest a realistic plan with specific times
-5. If the user approves, call write_calendar_events to save the plan
-
-Be encouraging, specific about times, and realistic about workload. Keep responses concise -- 2-3 paragraphs max unless the user asks for detail.`
+STRICT RULES — follow exactly:
+1. NEVER say you added, saved, or created anything unless write_calendar_events was actually called and returned success. Do not simulate or pretend to call tools.
+2. When user asks to add an event with a clear title + date/time → you MUST call write_calendar_events. Then confirm in one sentence after the tool returns.
+3. "tonight" = ` + today + `. "today" = ` + today + `. Always use YYYY-MM-DD dates. Always use HH:MM for times.
+4. Keep all text replies to 1-2 sentences max. No lists unless asked.
+5. For habit planning → call get_user_habits + get_calendar_events first, suggest a plan, then call write_calendar_events only after user confirms.`
+}
 
 const maxToolCallRounds = 5
 const maxHistoryMessages = 20
@@ -89,7 +93,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 
 	// Build messages for AI
 	messages := []internalai.Message{
-		{Role: "system", Content: systemPrompt},
+		{Role: "system", Content: buildSystemPrompt()},
 	}
 	for _, h := range history {
 		messages = append(messages, internalai.Message{Role: h.Role, Content: h.Content})
@@ -103,6 +107,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 	fullResponse := ""
 
 	for round := 0; round < maxToolCallRounds; round++ {
+		fmt.Printf("[aicoach] round=%d messages=%d\n", round, len(messages))
 		ch := make(chan internalai.StreamChunk, 50)
 		aiReq := internalai.ChatRequest{Messages: messages, Tools: tools}
 
@@ -112,6 +117,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 
 		go func() {
 			defer close(done)
+			defer close(ch) // must close ch so "for range ch" exits
 			aiResp, aiErr = s.aiClient.StreamChat(ctx, aiReq, ch)
 		}()
 
@@ -134,9 +140,15 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 
 		<-done
 		if aiErr != nil {
+			fmt.Printf("[aicoach] round=%d error: %v\n", round, aiErr)
 			stream <- SSEEvent{Type: "error", Data: aiErr.Error()}
 			return aiErr
 		}
+		if aiResp == nil {
+			fmt.Printf("[aicoach] round=%d nil response, stopping\n", round)
+			break
+		}
+		fmt.Printf("[aicoach] round=%d done, text_len=%d, tool_calls=%d\n", round, len(fullResponse), len(aiResp.FunctionCalls))
 
 		if len(aiResp.FunctionCalls) == 0 {
 			break
@@ -215,10 +227,12 @@ func (s *Service) executeTool(userID uuid.UUID, call internalai.FunctionCall, st
 
 	case internalai.ToolWriteCalendar:
 		eventsRaw, _ := call.Args["events"].([]interface{})
+		fmt.Printf("[aicoach] write_calendar_events called, raw events count=%d, args=%+v\n", len(eventsRaw), call.Args)
 		var inputs []calendar.CreateEventInput
 		for _, e := range eventsRaw {
 			eMap, ok := e.(map[string]interface{})
 			if !ok {
+				fmt.Printf("[aicoach] skipping event, not a map: %T %+v\n", e, e)
 				continue
 			}
 			input := calendar.CreateEventInput{
@@ -232,15 +246,20 @@ func (s *Service) executeTool(userID uuid.UUID, call internalai.FunctionCall, st
 			if hid := strVal(eMap["habit_id"]); hid != "" {
 				input.HabitID = &hid
 			}
+			fmt.Printf("[aicoach] parsed event: title=%q date=%q time=%q duration=%d\n",
+				input.Title, input.ScheduledDate, input.StartTime, input.DurationMinutes)
 			inputs = append(inputs, input)
 		}
 		if len(inputs) == 0 {
+			fmt.Printf("[aicoach] write_calendar_events: no valid inputs parsed\n")
 			return "no valid events provided", nil
 		}
 		created, err := s.calendarSvc.CreateBatch(userID, inputs, "ai")
 		if err != nil {
+			fmt.Printf("[aicoach] CreateBatch error: %v\n", err)
 			return "", err
 		}
+		fmt.Printf("[aicoach] created %d events\n", len(created))
 		b, _ := json.Marshal(created)
 		stream <- SSEEvent{Type: "calendar_update", Data: string(b)}
 		return string(b), nil

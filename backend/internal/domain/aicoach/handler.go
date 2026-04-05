@@ -2,6 +2,7 @@ package aicoach
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,7 +41,9 @@ func (h *Handler) Chat(c *gin.Context) {
 
 	go func() {
 		defer close(stream)
-		_ = h.svc.Chat(ctx, userID, req, stream)
+		if err := h.svc.Chat(ctx, userID, req, stream); err != nil {
+			fmt.Printf("[aicoach] Chat error: %v\n", err)
+		}
 	}()
 
 	w := c.Writer

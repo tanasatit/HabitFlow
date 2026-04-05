@@ -33,7 +33,7 @@ func GetToolDefinitions() []ToolDef {
 				},
 				{
 					Name:        ToolWriteCalendar,
-					Description: "Write habit events to the user's calendar. Call this after the user approves the plan.",
+					Description: "Save events to the user's calendar. Call this immediately when the user provides event details (title, date, time). Do not ask for confirmation first.",
 					Parameters: &ParamSpec{
 						Type: "OBJECT",
 						Properties: map[string]ParamProp{

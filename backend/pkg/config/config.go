@@ -30,7 +30,7 @@ func Load() (*Config, error) {
 		JWTSecret:        os.Getenv("JWT_SECRET"),
 		JWTExpiryHours:   getEnvInt("JWT_EXPIRY_HOURS", 24),
 		GeminiAPIKey:     os.Getenv("GEMINI_API_KEY"),
-		GeminiModel:      getEnv("GEMINI_MODEL", "gemini-2.0-flash"),
+		GeminiModel:      getEnv("GEMINI_MODEL", "gemini-1.5-pro"),
 		OpenRouterAPIKey: os.Getenv("OPENROUTER_API_KEY"),
 		OpenRouterModel:  getEnv("OPENROUTER_MODEL", "google/gemini-flash-1.5"),
 		RedisURL:         getEnv("REDIS_URL", "redis://localhost:6379"),
