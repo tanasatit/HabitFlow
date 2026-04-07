@@ -18,6 +18,7 @@ type CalendarEvent struct {
 	Source          string     `gorm:"default:'manual'"                               json:"source"`
 	Color           string     `gorm:"default:'#14b8a6'"                              json:"color"`
 	IsCompleted     bool       `gorm:"default:false"                                  json:"is_completed"`
+	GoogleEventID   string     `gorm:"index"                                          json:"google_event_id"`
 	CreatedAt       time.Time  `                                                      json:"created_at"`
 	UpdatedAt       time.Time  `                                                      json:"updated_at"`
 }
@@ -29,6 +30,7 @@ type CreateEventInput struct {
 	ScheduledDate   string  `json:"scheduled_date"   binding:"required"`
 	StartTime       string  `json:"start_time"       binding:"required"`
 	DurationMinutes int     `json:"duration_minutes" binding:"omitempty,min=5,max=480"`
+	GoogleEventID   string  `json:"google_event_id"`
 }
 
 type UpdateEventInput struct {

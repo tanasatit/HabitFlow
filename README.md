@@ -124,12 +124,14 @@ See [docs/context/PHASES.md](docs/context/PHASES.md) for the full roadmap.
 | Phase | Description | Status |
 |---|---|---|
 | 1 | Project Setup | Done |
-| 2 | Authentication | Pending |
-| 3 | Habits CRUD | Pending |
-| 4 | Dashboard & Streaks | Pending |
-| 5 | Admin Panel | Pending |
-| 6 | Calendar & AI Coach | Pending |
-| 7 | Leaderboard | Pending |
-| 8 | Google Calendar Sync | Pending |
-| 9 | DevSecOps Pipeline | Pending |
-| 10 | Polish & Submission | Pending |
+| 2 | Authentication | Done |
+| 3 | Habits CRUD | Done |
+| 4 | Dashboard & Streaks | Done |
+| 5 | Admin Panel | Done |
+| 6 | Calendar & AI Coach | Done |
+| 7 | Google Calendar Sync | Done |
+| 8 | Google OAuth (Sign in with Google) | Pending |
+| 9 | Enhance UX/UI | Pending |
+| 10 | Testing | Pending |
+| 11 | DevSecOps Pipeline | Pending |
+| 12 | Polish & Submission | Pending |

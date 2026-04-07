@@ -8,16 +8,20 @@ import (
 )
 
 type Config struct {
-	Port            string
-	SupabaseDBURL   string
-	JWTSecret       string
-	JWTExpiryHours  int
-	GeminiAPIKey    string
-	GeminiModel     string
-	OpenRouterAPIKey string
-	OpenRouterModel  string
-	RedisURL        string
-	FrontendURL     string
+	Port              string
+	SupabaseDBURL     string
+	JWTSecret         string
+	JWTExpiryHours    int
+	GeminiAPIKey      string
+	GeminiModel       string
+	OpenRouterAPIKey  string
+	OpenRouterModel   string
+	RedisURL          string
+	FrontendURL       string
+	GoogleClientID    string
+	GoogleClientSecret string
+	GoogleRedirectURL string
+	BackendURL        string
 }
 
 func Load() (*Config, error) {
@@ -33,8 +37,12 @@ func Load() (*Config, error) {
 		GeminiModel:      getEnv("GEMINI_MODEL", "gemini-1.5-pro"),
 		OpenRouterAPIKey: os.Getenv("OPENROUTER_API_KEY"),
 		OpenRouterModel:  getEnv("OPENROUTER_MODEL", "google/gemini-flash-1.5"),
-		RedisURL:         getEnv("REDIS_URL", "redis://localhost:6379"),
-		FrontendURL:      getEnv("FRONTEND_URL", "http://localhost:3000"),
+		RedisURL:           getEnv("REDIS_URL", "redis://localhost:6379"),
+		FrontendURL:        getEnv("FRONTEND_URL", "http://localhost:3000"),
+		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		GoogleRedirectURL:  getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/v1/google/callback"),
+		BackendURL:         getEnv("BACKEND_URL", "http://localhost:8080"),
 	}
 
 	if err := cfg.validate(); err != nil {

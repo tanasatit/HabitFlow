@@ -4,20 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
 	internalai "github.com/habitflow/api/internal/ai"
 	"github.com/habitflow/api/internal/domain/calendar"
 	"github.com/habitflow/api/internal/domain/dashboard"
+	"github.com/habitflow/api/internal/domain/googlecal"
 	"github.com/habitflow/api/internal/domain/habit"
 )
 
-func buildSystemPrompt() string {
+func (s *Service) buildSystemPrompt(userID uuid.UUID) string {
 	now := time.Now()
 	today := now.Format("2006-01-02")
 	weekday := now.Weekday().String()
-	return `You are HabitFlow AI Coach — a concise, action-oriented habit planning assistant.
+	prompt := `You are HabitFlow AI Coach — a concise, action-oriented habit planning assistant.
 
 TODAY: ` + today + ` (` + weekday + `)
 
@@ -27,6 +29,11 @@ STRICT RULES — follow exactly:
 3. "tonight" = ` + today + `. "today" = ` + today + `. Always use YYYY-MM-DD dates. Always use HH:MM for times.
 4. Keep all text replies to 1-2 sentences max. No lists unless asked.
 5. For habit planning → call get_user_habits + get_calendar_events first, suggest a plan, then call write_calendar_events only after user confirms.`
+
+	if s.googleCalSvc != nil && s.googleCalSvc.IsConnected(userID) {
+		prompt += "\n\nThe user has connected their Google Calendar. Use read_google_calendar to see their real schedule and write_google_calendar to add habit events. Always prefer writing to Google Calendar when connected."
+	}
+	return prompt
 }
 
 const maxToolCallRounds = 5
@@ -38,12 +45,13 @@ type storedMessage struct {
 }
 
 type Service struct {
-	aiClient    *internalai.Client
-	habitSvc    *habit.Service
-	habitRepo   *habit.Repository
-	calendarSvc *calendar.Service
-	dashSvc     *dashboard.Service
-	repo        *Repository
+	aiClient     *internalai.Client
+	habitSvc     *habit.Service
+	habitRepo    *habit.Repository
+	calendarSvc  *calendar.Service
+	dashSvc      *dashboard.Service
+	repo         *Repository
+	googleCalSvc *googlecal.Service
 }
 
 func NewService(
@@ -53,14 +61,16 @@ func NewService(
 	calendarSvc *calendar.Service,
 	dashSvc *dashboard.Service,
 	repo *Repository,
+	googleCalSvc *googlecal.Service,
 ) *Service {
 	return &Service{
-		aiClient:    aiClient,
-		habitSvc:    habitSvc,
-		habitRepo:   habitRepo,
-		calendarSvc: calendarSvc,
-		dashSvc:     dashSvc,
-		repo:        repo,
+		aiClient:     aiClient,
+		habitSvc:     habitSvc,
+		habitRepo:    habitRepo,
+		calendarSvc:  calendarSvc,
+		dashSvc:      dashSvc,
+		repo:         repo,
+		googleCalSvc: googleCalSvc,
 	}
 }
 
@@ -93,7 +103,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 
 	// Build messages for AI
 	messages := []internalai.Message{
-		{Role: "system", Content: buildSystemPrompt()},
+		{Role: "system", Content: s.buildSystemPrompt(userID)},
 	}
 	for _, h := range history {
 		messages = append(messages, internalai.Message{Role: h.Role, Content: h.Content})
@@ -104,10 +114,12 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 	history = append(history, storedMessage{Role: "user", Content: req.Message})
 
 	tools := internalai.GetToolDefinitions()
+	if s.googleCalSvc != nil && s.googleCalSvc.IsConnected(userID) {
+		tools = append(tools, internalai.GetGoogleCalendarToolDefinitions()...)
+	}
 	fullResponse := ""
 
 	for round := 0; round < maxToolCallRounds; round++ {
-		fmt.Printf("[aicoach] round=%d messages=%d\n", round, len(messages))
 		ch := make(chan internalai.StreamChunk, 50)
 		aiReq := internalai.ChatRequest{Messages: messages, Tools: tools}
 
@@ -140,15 +152,12 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 
 		<-done
 		if aiErr != nil {
-			fmt.Printf("[aicoach] round=%d error: %v\n", round, aiErr)
 			stream <- SSEEvent{Type: "error", Data: aiErr.Error()}
 			return aiErr
 		}
 		if aiResp == nil {
-			fmt.Printf("[aicoach] round=%d nil response, stopping\n", round)
 			break
 		}
-		fmt.Printf("[aicoach] round=%d done, text_len=%d, tool_calls=%d\n", round, len(fullResponse), len(aiResp.FunctionCalls))
 
 		if len(aiResp.FunctionCalls) == 0 {
 			break
@@ -161,7 +170,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 				FunctionCall: &call,
 			})
 
-			result, err := s.executeTool(userID, call, stream)
+			result, err := s.executeTool(ctx, userID, call, stream)
 			if err != nil {
 				result = fmt.Sprintf("error executing tool: %v", err)
 			}
@@ -185,7 +194,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 	conv.Messages = histBytes
 	if err := s.repo.Update(conv); err != nil {
 		// Log but don't fail the request — user already received their response
-		fmt.Printf("aicoach: failed to persist conversation %s: %v\n", conv.ID, err)
+		log.Printf("aicoach: failed to persist conversation %s: %v", conv.ID, err)
 	}
 
 	doneData, err := json.Marshal(map[string]string{"conversation_id": conv.ID.String()})
@@ -197,7 +206,7 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 	return nil
 }
 
-func (s *Service) executeTool(userID uuid.UUID, call internalai.FunctionCall, stream chan<- SSEEvent) (string, error) {
+func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call internalai.FunctionCall, stream chan<- SSEEvent) (string, error) {
 	switch call.Name {
 	case internalai.ToolGetUserHabits:
 		habits, err := s.habitRepo.FindByUserID(userID)
@@ -227,12 +236,10 @@ func (s *Service) executeTool(userID uuid.UUID, call internalai.FunctionCall, st
 
 	case internalai.ToolWriteCalendar:
 		eventsRaw, _ := call.Args["events"].([]interface{})
-		fmt.Printf("[aicoach] write_calendar_events called, raw events count=%d, args=%+v\n", len(eventsRaw), call.Args)
 		var inputs []calendar.CreateEventInput
 		for _, e := range eventsRaw {
 			eMap, ok := e.(map[string]interface{})
 			if !ok {
-				fmt.Printf("[aicoach] skipping event, not a map: %T %+v\n", e, e)
 				continue
 			}
 			input := calendar.CreateEventInput{
@@ -246,22 +253,82 @@ func (s *Service) executeTool(userID uuid.UUID, call internalai.FunctionCall, st
 			if hid := strVal(eMap["habit_id"]); hid != "" {
 				input.HabitID = &hid
 			}
-			fmt.Printf("[aicoach] parsed event: title=%q date=%q time=%q duration=%d\n",
-				input.Title, input.ScheduledDate, input.StartTime, input.DurationMinutes)
 			inputs = append(inputs, input)
 		}
 		if len(inputs) == 0 {
-			fmt.Printf("[aicoach] write_calendar_events: no valid inputs parsed\n")
 			return "no valid events provided", nil
 		}
 		created, err := s.calendarSvc.CreateBatch(userID, inputs, "ai")
 		if err != nil {
-			fmt.Printf("[aicoach] CreateBatch error: %v\n", err)
 			return "", err
 		}
-		fmt.Printf("[aicoach] created %d events\n", len(created))
 		b, _ := json.Marshal(created)
 		stream <- SSEEvent{Type: "calendar_update", Data: string(b)}
+		return string(b), nil
+
+	case internalai.ToolReadGoogleCalendar:
+		if s.googleCalSvc == nil {
+			return "google calendar not configured", nil
+		}
+		startDate, _ := call.Args["start_date"].(string)
+		endDate, _ := call.Args["end_date"].(string)
+		events, err := s.googleCalSvc.ReadEvents(ctx, userID, startDate, endDate)
+		if err != nil {
+			return "", err
+		}
+		b, _ := json.Marshal(events)
+		return string(b), nil
+
+	case internalai.ToolWriteGoogleCalendar:
+		if s.googleCalSvc == nil {
+			return "google calendar not configured", nil
+		}
+		eventsRaw, _ := call.Args["events"].([]interface{})
+
+		// Marshal/unmarshal to convert []interface{} -> []CreateGoogleEventInput
+		rawBytes, err := json.Marshal(eventsRaw)
+		if err != nil {
+			return "", fmt.Errorf("marshal google events: %w", err)
+		}
+		var inputs []googlecal.CreateGoogleEventInput
+		if err := json.Unmarshal(rawBytes, &inputs); err != nil {
+			return "", fmt.Errorf("unmarshal google events: %w", err)
+		}
+		if len(inputs) == 0 {
+			return "no valid events provided", nil
+		}
+
+		// Write to Google Calendar
+		created, err := s.googleCalSvc.WriteEvents(ctx, userID, inputs)
+		if err != nil {
+			return "", err
+		}
+
+		// Also save each event to local calendar_events with source="google",
+		// including the GoogleEventID returned by the Google Calendar API.
+		calInputs := make([]calendar.CreateEventInput, 0, len(created))
+		for _, ev := range created {
+			calInputs = append(calInputs, calendar.CreateEventInput{
+				Title:           ev.Title,
+				Description:     ev.Description,
+				ScheduledDate:   ev.ScheduledDate,
+				StartTime:       ev.StartTime,
+				DurationMinutes: ev.DurationMinutes,
+				GoogleEventID:   ev.GoogleEventID,
+			})
+		}
+		if len(calInputs) > 0 {
+			localCreated, err := s.calendarSvc.CreateBatch(userID, calInputs, "google")
+			if err != nil {
+				log.Printf("aicoach: write_google_calendar: local save failed: %v", err)
+			} else {
+				// Emit calendar_update SSE event for local events
+				b, _ := json.Marshal(localCreated)
+				stream <- SSEEvent{Type: "calendar_update", Data: string(b)}
+			}
+		}
+
+		b, _ := json.Marshal(created)
 		return string(b), nil
 
 	default:

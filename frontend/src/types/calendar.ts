@@ -7,7 +7,7 @@ export interface ICalendarEvent {
   scheduled_date: string
   start_time: string
   duration_minutes: number
-  source: 'ai' | 'manual'
+  source: 'ai' | 'manual' | 'google'
   is_completed: boolean
   color: string
   created_at: string

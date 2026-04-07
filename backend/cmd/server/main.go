@@ -20,6 +20,7 @@ import (
 	"github.com/habitflow/api/internal/domain/aicoach"
 	"github.com/habitflow/api/internal/domain/calendar"
 	"github.com/habitflow/api/internal/domain/dashboard"
+	"github.com/habitflow/api/internal/domain/googlecal"
 	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
 	"github.com/habitflow/api/internal/middleware"
@@ -39,7 +40,7 @@ func main() {
 		log.Fatalf("database error: %v", err)
 	}
 
-	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}, &calendar.CalendarEvent{}, &aicoach.AIConversation{}); err != nil {
+	if err := database.AutoMigrate(db, &user.User{}, &user.Subscription{}, &habit.Habit{}, &habit.HabitLog{}, &calendar.CalendarEvent{}, &aicoach.AIConversation{}, &googlecal.GoogleToken{}); err != nil {
 		log.Fatalf("migrate error: %v", err)
 	}
 
@@ -81,9 +82,13 @@ func main() {
 	calendarSvc := calendar.NewService(calendarRepo)
 	calendarHandler := calendar.NewHandler(calendarSvc)
 
+	googleCalRepo := googlecal.NewRepository(db)
+	googleCalSvc := googlecal.NewService(googleCalRepo, cfg)
+	googleCalHandler := googlecal.NewHandler(googleCalSvc)
+
 	aiClient := internalai.NewClient(cfg.GeminiAPIKey, cfg.GeminiModel, cfg.OpenRouterAPIKey, cfg.OpenRouterModel)
 	aiCoachRepo := aicoach.NewRepository(db)
-	aiCoachSvc := aicoach.NewService(aiClient, habitSvc, habitRepo, calendarSvc, dashboardSvc, aiCoachRepo)
+	aiCoachSvc := aicoach.NewService(aiClient, habitSvc, habitRepo, calendarSvc, dashboardSvc, aiCoachRepo, googleCalSvc)
 	aiCoachHandler := aicoach.NewHandler(aiCoachSvc)
 
 	v1 := r.Group("/api/v1")
@@ -127,6 +132,13 @@ func main() {
 			adminRoutes.GET("/analytics", adminHandler.Analytics)
 		}
 
+		// Public OAuth callbacks — no auth middleware required.
+		// Google redirects here without any JWT, so this must be outside the premium group.
+		oauthCallbacks := v1.Group("")
+		{
+			oauthCallbacks.GET("/google/callback", googleCalHandler.Callback)
+		}
+
 		// Premium routes — requires auth + premium subscription
 		premium := v1.Group("")
 		premium.Use(middleware.Auth(cfg), middleware.RequirePremium())
@@ -136,6 +148,11 @@ func main() {
 			premium.POST("/calendar", calendarHandler.CreateEvent)
 			premium.PATCH("/calendar/:id", calendarHandler.UpdateEvent)
 			premium.DELETE("/calendar/:id", calendarHandler.DeleteEvent)
+			premium.GET("/google/auth", googleCalHandler.InitiateAuth)
+			premium.GET("/google/status", googleCalHandler.Status)
+			premium.DELETE("/google/disconnect", googleCalHandler.Disconnect)
+			premium.GET("/google/events", googleCalHandler.ReadEvents)
+			premium.POST("/google/events", googleCalHandler.WriteEvents)
 		}
 	}
 
@@ -167,12 +184,10 @@ func main() {
 
 func seedAdminUser(db *gorm.DB) error {
 	email := os.Getenv("ADMIN_EMAIL")
-	if email == "" {
-		email = "admin@habitflow.local"
-	}
 	password := os.Getenv("ADMIN_PASSWORD")
-	if password == "" {
-		password = "Admin1234!"
+	if email == "" || password == "" {
+		log.Println("ADMIN_EMAIL or ADMIN_PASSWORD not set — skipping admin seed")
+		return nil
 	}
 
 	var existing user.User

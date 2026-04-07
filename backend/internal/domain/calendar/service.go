@@ -57,6 +57,7 @@ func (s *Service) CreateBatch(userID uuid.UUID, inputs []CreateEventInput, sourc
 			StartTime:       input.StartTime,
 			DurationMinutes: input.DurationMinutes,
 			Source:          source,
+			GoogleEventID:   input.GoogleEventID,
 		}
 		if e.DurationMinutes == 0 {
 			e.DurationMinutes = 30

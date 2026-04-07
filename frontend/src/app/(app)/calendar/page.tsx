@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useCalendar } from '@/lib/hooks/useCalendar'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useGoogleCalendar } from '@/lib/hooks/useGoogleCalendar'
 import { CalendarGrid } from '@/components/features/calendar/CalendarGrid'
 import { CreateEventModal } from '@/components/features/calendar/CreateEventModal'
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt'
@@ -32,6 +33,7 @@ function formatWeekLabel(weekStart: string): string {
 export default function CalendarPage() {
   const { user } = useAuth()
   const { events, loading, fetchEvents, createEvent, deleteEvent, updateEvent } = useCalendar()
+  const { connected: googleConnected } = useGoogleCalendar()
   const [weekStart, setWeekStart] = useState('')
   const [addEventDate, setAddEventDate] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -64,6 +66,12 @@ export default function CalendarPage() {
         </div>
         {isPremium && (
           <div className="flex items-center gap-2">
+            {mounted && googleConnected && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-xs font-medium text-blue-600">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                Google Calendar
+              </div>
+            )}
             <button
               onClick={prevWeek}
               className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"

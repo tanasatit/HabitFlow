@@ -9,7 +9,9 @@ interface Props {
 }
 
 export function CalendarEventCard({ event, onDelete, onDragStart }: Props) {
-  const color = event.color || '#14b8a6'
+  const color = event.source === 'google'
+    ? '#4285F4'
+    : (event.color || '#14b8a6')
   return (
     <div
       draggable={!!onDragStart}
@@ -27,6 +29,12 @@ export function CalendarEventCard({ event, onDelete, onDragStart }: Props) {
             <p className="text-gray-500">{event.start_time} · {event.duration_minutes}min</p>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
+            {event.source === 'google' && (
+              <span
+                className="text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                style={{ backgroundColor: color }}
+              >G</span>
+            )}
             {event.source === 'ai' && (
               <span
                 className="text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium"

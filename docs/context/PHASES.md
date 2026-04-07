@@ -142,24 +142,75 @@
 
 ---
 
-## Phase 7 — Google Calendar Sync (MCP)
+## Phase 7 — Google Calendar Sync (MCP) ✅
 **Goal:** AI reads and writes Google Calendar for premium users.
 
 ### Backend
-- [ ] Set up Google OAuth2 in Supabase or manually
-- [ ] Store Google tokens per user in DB
-- [ ] Connect MCP Google Calendar server in AI tools
-- [ ] Test AI reads real Google Calendar events
-- [ ] Test AI writes habit plan back to Google Calendar
+- [x] Set up Google OAuth2 in Supabase or manually
+- [x] Store Google tokens per user in DB
+- [x] Connect MCP Google Calendar server in AI tools
+- [x] Test AI reads real Google Calendar events
+- [x] Test AI writes habit plan back to Google Calendar
 
 ### Frontend
-- [ ] "Connect Google Calendar" button in settings
-- [ ] OAuth flow redirect
-- [ ] Show sync status in calendar view
+- [x] "Connect Google Calendar" button in settings
+- [x] OAuth flow redirect
+- [x] Show sync status in calendar view
 
 ---
 
-## Phase 8 — DevSecOps Pipeline
+## Phase 8 — Google OAuth (Sign in with Google)
+**Goal:** Users can register and log in using their Google account.
+
+### Backend
+- [ ] Add `google_id` column to `users` table (nullable, unique index)
+- [ ] Register a separate OAuth2 client in Google Cloud Console for identity (not calendar scope — use `openid email profile`)
+- [ ] `GET /auth/google` — initiate Google sign-in (state token, redirect to Google)
+- [ ] `GET /auth/google/callback` — exchange code, fetch user profile, upsert user by `google_id` or email, issue JWT
+- [ ] Handle both new user (auto-register with free tier) and existing user (link accounts by email)
+- [ ] No password required for Google-linked accounts; block local login if no password hash
+
+### Frontend
+- [ ] "Continue with Google" button on login and register pages
+- [ ] Handle redirect to `/auth/google` (plain browser navigation, no auth header needed)
+- [ ] On callback redirect back to `/dashboard` with JWT set in cookie
+- [ ] Show Google avatar/email in account settings for linked accounts
+
+---
+
+## Phase 9 — Enhance UX/UI
+**Goal:** Polish the user experience and visual design across all pages.
+
+- [ ] Consistent loading skeletons on all data-fetching pages (habits, dashboard, calendar, ai-coach)
+- [ ] Empty states with illustrations on habits list, calendar, and ai-coach (no habits yet, no events, no chat)
+- [ ] Toast notifications for success/error actions (habit created, event saved, login failed, etc.)
+- [ ] Smooth page transitions using Framer Motion `AnimatePresence`
+- [ ] Mobile-responsive layout for habits, dashboard, and calendar pages
+- [ ] Accessible focus states and keyboard navigation on forms and buttons
+- [ ] Dark mode support (Tailwind `dark:` classes, persisted in localStorage)
+- [ ] Micro-interactions: button press feedback, card hover states, streak flame pulse
+
+---
+
+## Phase 10 — Testing
+**Goal:** Core flows covered by automated tests; no regressions before pipeline.
+
+### Backend
+- [ ] Unit tests for habit service (streak calculation, completion logic)
+- [ ] Unit tests for auth service (register, login, JWT issuance)
+- [ ] Integration tests for `/api/v1/health`, `/auth/register`, `/auth/login`, `/habits` CRUD
+- [ ] Table-driven tests for edge cases (duplicate email, invalid habit ID, expired token)
+- [ ] `go test ./...` passing with >70% coverage on service layer
+
+### Frontend
+- [ ] Unit tests for `useHabits`, `useAuth`, `useCalendar` hooks (Jest + React Testing Library)
+- [ ] Component tests for `HabitCard`, `CalendarEventCard`, `ChatInput`
+- [ ] E2E smoke test: register → create habit → log completion → see dashboard streak (Playwright or Cypress)
+- [ ] `npm test` passing with no failures
+
+---
+
+## Phase 11 — DevSecOps Pipeline
 **Goal:** CI/CD working. Security scanning in pipeline.
 
 - [ ] `.github/workflows/ci.yml` — on every push: run Go tests, Next.js lint (`next lint`), Semgrep security scan
@@ -173,7 +224,7 @@
 
 ---
 
-## Phase 10 — Polish & Submission
+## Phase 12 — Polish & Submission
 **Goal:** Project complete and ready to submit.
 
 - [ ] All animations smooth and working
