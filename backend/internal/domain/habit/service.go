@@ -6,44 +6,23 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-
-	"github.com/habitflow/api/internal/domain/user"
 )
 
-const MAX_FREE_HABITS = 3
-
 var (
-	ErrFreeTierLimit = errors.New("free tier limited to 3 habits")
 	ErrHabitNotFound = errors.New("habit not found")
 	ErrNotOwner      = errors.New("you do not own this habit")
 	ErrAlreadyLogged = errors.New("habit already logged today")
 )
 
 type Service struct {
-	repo     *Repository
-	userRepo *user.Repository
+	repo *Repository
 }
 
-func NewService(repo *Repository, userRepo *user.Repository) *Service {
-	return &Service{repo: repo, userRepo: userRepo}
+func NewService(repo *Repository) *Service {
+	return &Service{repo: repo}
 }
 
 func (s *Service) Create(userID uuid.UUID, input CreateInput) (*Habit, error) {
-	u, err := s.userRepo.FindByID(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	if u.Role == user.RoleFree {
-		count, err := s.repo.CountActiveByUserID(userID)
-		if err != nil {
-			return nil, err
-		}
-		if count >= MAX_FREE_HABITS {
-			return nil, ErrFreeTierLimit
-		}
-	}
-
 	// Apply defaults for optional fields
 	category := input.Category
 	frequency := input.Frequency

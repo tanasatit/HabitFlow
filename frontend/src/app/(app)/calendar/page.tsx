@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useCalendar } from '@/lib/hooks/useCalendar'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { CalendarGrid } from '@/components/features/calendar/CalendarGrid'
+import { CreateEventModal } from '@/components/features/calendar/CreateEventModal'
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt'
 
 function getMonday(date: Date): string {
@@ -30,13 +31,21 @@ function formatWeekLabel(weekStart: string): string {
 
 export default function CalendarPage() {
   const { user } = useAuth()
-  const { events, loading, fetchEvents, deleteEvent } = useCalendar()
-  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
-
-  const isPremium = user?.role === 'premium' || user?.role === 'admin'
+  const { events, loading, fetchEvents, createEvent, deleteEvent, updateEvent } = useCalendar()
+  const [weekStart, setWeekStart] = useState('')
+  const [addEventDate, setAddEventDate] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (!isPremium) return
+    setMounted(true)
+    setWeekStart(getMonday(new Date()))
+  }, [])
+
+  // Default to true while mounting so server renders the full UI (avoids hydration mismatch)
+  const isPremium = mounted ? (user?.role === 'premium' || user?.role === 'admin') : true
+
+  useEffect(() => {
+    if (!isPremium || weekStart === '') return
     fetchEvents(weekStart, addDays(weekStart, 6))
   }, [weekStart, isPremium, fetchEvents])
 
@@ -44,7 +53,7 @@ export default function CalendarPage() {
   const nextWeek = useCallback(() => setWeekStart(w => addDays(w, 7)), [])
   const goToday = useCallback(() => setWeekStart(getMonday(new Date())), [])
 
-  const isCurrentWeek = weekStart === getMonday(new Date())
+  const isCurrentWeek = mounted && weekStart !== '' && weekStart === getMonday(new Date())
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-6 py-4">
@@ -70,7 +79,7 @@ export default function CalendarPage() {
               Today
             </button>
             <span className="text-sm font-medium text-gray-700 min-w-[180px] text-center">
-              {formatWeekLabel(weekStart)}
+              {weekStart !== '' ? formatWeekLabel(weekStart) : ''}
             </span>
             <button
               onClick={nextWeek}
@@ -85,7 +94,7 @@ export default function CalendarPage() {
 
       {!isPremium ? (
         <UpgradePrompt feature="Calendar" />
-      ) : loading ? (
+      ) : !mounted || weekStart === '' || loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
         </div>
@@ -95,9 +104,19 @@ export default function CalendarPage() {
             events={events}
             weekStartDate={weekStart}
             onDeleteEvent={async (id) => { await deleteEvent(id) }}
+            onAddEvent={(date) => setAddEventDate(date)}
+            onUpdateEvent={async (id, date) => { await updateEvent(id, { scheduled_date: date }) }}
           />
         </div>
       )}
+
+      <CreateEventModal
+        isOpen={!!addEventDate}
+        defaultDate={addEventDate ?? weekStart}
+        onClose={() => setAddEventDate(null)}
+        onCreated={() => setAddEventDate(null)}
+        createEvent={createEvent}
+      />
     </div>
   )
 }

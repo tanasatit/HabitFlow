@@ -52,7 +52,7 @@ func main() {
 	// CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{cfg.FrontendURL},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -64,7 +64,7 @@ func main() {
 	userHandler := user.NewHandler(userSvc, cfg)
 
 	habitRepo := habit.NewRepository(db)
-	habitSvc := habit.NewService(habitRepo, userRepo)
+	habitSvc := habit.NewService(habitRepo)
 	habitHandler := habit.NewHandler(habitSvc)
 
 	dashboardSvc := dashboard.NewService(habitSvc, habitRepo)
@@ -134,6 +134,7 @@ func main() {
 			premium.POST("/ai/chat", aiCoachHandler.Chat)
 			premium.GET("/calendar", calendarHandler.GetEvents)
 			premium.POST("/calendar", calendarHandler.CreateEvent)
+			premium.PATCH("/calendar/:id", calendarHandler.UpdateEvent)
 			premium.DELETE("/calendar/:id", calendarHandler.DeleteEvent)
 		}
 	}

@@ -55,6 +55,38 @@ func (h *Handler) CreateEvent(c *gin.Context) {
 	response.Created(c, event)
 }
 
+// UpdateEvent handles PATCH /api/v1/calendar/:id
+func (h *Handler) UpdateEvent(c *gin.Context) {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.Unauthorized(c)
+		return
+	}
+
+	eventID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "invalid event id")
+		return
+	}
+
+	var input UpdateEventInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	event, err := h.svc.UpdateEvent(userID, eventID, input)
+	if err != nil {
+		if err.Error() == "event not found" {
+			response.NotFound(c, "event not found")
+			return
+		}
+		response.InternalError(c)
+		return
+	}
+	response.Success(c, event)
+}
+
 // DeleteEvent handles DELETE /api/v1/calendar/:id
 func (h *Handler) DeleteEvent(c *gin.Context) {
 	userID, ok := middleware.GetUserID(c)

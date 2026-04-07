@@ -4,24 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useHabits } from '@/lib/hooks/useHabits'
-import { useAuth } from '@/lib/hooks/useAuth'
 import { HabitCard } from '@/components/ui/HabitCard'
 import { HabitCreateForm } from '@/components/features/habits/HabitCreateForm'
 
-const FREE_HABIT_LIMIT = 3
-
 export default function HabitsPage() {
   const router = useRouter()
-  const { user } = useAuth()
   const { habits, loading, error, createHabit, logCompletion, deleteHabit } = useHabits()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
-
-  // UX-only gating — server enforces the real limit and returns 403.
-  // This only hides the "Add" button early to avoid an unnecessary round-trip.
-  const isFreeUser = user?.role === 'free'
-  const hasReachedFreeLimit = isFreeUser && habits.length >= FREE_HABIT_LIMIT
 
   async function handleToggleComplete(habitId: string) {
     setActionError(null)
@@ -64,42 +55,23 @@ export default function HabitsPage() {
             </p>
           </div>
 
-          {/* Add habit button or upgrade prompt */}
-          {!hasReachedFreeLimit ? (
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF8243] hover:bg-[#e5723a] text-white font-semibold text-sm transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
-              aria-label="Add new habit"
+          {/* Add habit button */}
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF8243] hover:bg-[#e5723a] text-white font-semibold text-sm transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+            aria-label="Add new habit"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-4 h-4"
+              aria-hidden="true"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4"
-                aria-hidden="true"
-              >
-                <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-              </svg>
-              Add habit
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF8243]/20 to-[#FFC0CB]/20 border border-[#FF8243]/30">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4 text-[#FF8243]"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-xs font-semibold text-[#FF8243]">Upgrade for more</span>
-            </div>
-          )}
+              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+            </svg>
+            Add habit
+          </button>
         </header>
 
         {/* Action error banner */}
@@ -257,12 +229,6 @@ export default function HabitsPage() {
           </motion.div>
         )}
 
-        {/* Free tier info footer */}
-        {!loading && isFreeUser && (
-          <p className="mt-8 text-center text-xs text-gray-600">
-            {habits.length} / {FREE_HABIT_LIMIT} habits used on free plan
-          </p>
-        )}
       </div>
     </div>
   )

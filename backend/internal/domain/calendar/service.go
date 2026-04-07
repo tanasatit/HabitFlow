@@ -79,6 +79,10 @@ func (s *Service) DeleteEvent(userID uuid.UUID, eventID uuid.UUID) error {
 	return s.repo.Delete(eventID, userID)
 }
 
+func (s *Service) UpdateEvent(userID, eventID uuid.UUID, input UpdateEventInput) (*CalendarEvent, error) {
+	return s.repo.Update(eventID, userID, input)
+}
+
 func (s *Service) ClearWeek(userID uuid.UUID, startDate, endDate string) error {
 	return s.repo.DeleteByUserIDAndDateRange(userID, startDate, endDate)
 }

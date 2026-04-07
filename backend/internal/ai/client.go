@@ -110,9 +110,9 @@ func (c *Client) StreamChat(ctx context.Context, req ChatRequest, ch chan<- Stre
 // --- Gemini implementation ---
 
 type geminiPart struct {
-	Text             string          `json:"text,omitempty"`
-	FunctionCall     *FunctionCall   `json:"functionCall,omitempty"`
-	FunctionResponse *funcRespPart   `json:"functionResponse,omitempty"`
+	Text             string        `json:"text,omitempty"`
+	FunctionCall     *FunctionCall `json:"functionCall,omitempty"`
+	FunctionResponse *funcRespPart `json:"functionResponse,omitempty"`
 }
 
 type funcRespPart struct {
@@ -244,7 +244,7 @@ func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- St
 				if args == nil {
 					args = map[string]interface{}{}
 				}
-				call := &FunctionCall{Name: name, Args: args}
+					call := &FunctionCall{Name: name, Args: args}
 				result.FunctionCalls = append(result.FunctionCalls, *call)
 				select {
 				case ch <- StreamChunk{Tool: call}:

@@ -16,6 +16,7 @@ type CalendarEvent struct {
 	StartTime       string     `gorm:"not null"                                       json:"start_time"`
 	DurationMinutes int        `gorm:"default:30"                                     json:"duration_minutes"`
 	Source          string     `gorm:"default:'manual'"                               json:"source"`
+	Color           string     `gorm:"default:'#14b8a6'"                              json:"color"`
 	IsCompleted     bool       `gorm:"default:false"                                  json:"is_completed"`
 	CreatedAt       time.Time  `                                                      json:"created_at"`
 	UpdatedAt       time.Time  `                                                      json:"updated_at"`
@@ -28,6 +29,12 @@ type CreateEventInput struct {
 	ScheduledDate   string  `json:"scheduled_date"   binding:"required"`
 	StartTime       string  `json:"start_time"       binding:"required"`
 	DurationMinutes int     `json:"duration_minutes" binding:"omitempty,min=5,max=480"`
+}
+
+type UpdateEventInput struct {
+	ScheduledDate string `json:"scheduled_date"`
+	StartTime     string `json:"start_time"`
+	Color         string `json:"color"`
 }
 
 type EventFilter struct {

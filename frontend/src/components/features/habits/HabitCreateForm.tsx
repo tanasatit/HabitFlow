@@ -23,7 +23,6 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
   })
   const [errors, setErrors] = useState<Partial<Record<keyof ICreateHabitInput, string>>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [isFreeTierHit, setIsFreeTierHit] = useState(false)
   const [loading, setLoading] = useState(false)
 
   function validate(): boolean {
@@ -43,7 +42,6 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSubmitError(null)
-    setIsFreeTierHit(false)
 
     if (!validate()) return
 
@@ -58,11 +56,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
     setLoading(false)
 
     if (result.error) {
-      if (result.error.toLowerCase().includes('free tier')) {
-        setIsFreeTierHit(true)
-      } else {
-        setSubmitError(result.error)
-      }
+      setSubmitError(result.error)
       return
     }
 
@@ -94,43 +88,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
         Create a new habit
       </h2>
 
-      {/* Free tier upgrade prompt */}
-      {isFreeTierHit && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-4 rounded-xl border border-[#FF8243]/30 bg-gradient-to-r from-[#FF8243]/10 to-[#FFC0CB]/10"
-        >
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF8243] to-[#FFC0CB] flex items-center justify-center flex-shrink-0">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4 text-white"
-                aria-hidden="true"
-              >
-                <path d="M15.98 1.804a1 1 0 0 0-1.96 0l-.24 1.192a1 1 0 0 1-.784.785l-1.192.238a1 1 0 0 0 0 1.962l1.192.238a1 1 0 0 1 .785.785l.238 1.192a1 1 0 0 0 1.962 0l.238-1.192a1 1 0 0 1 .785-.785l1.192-.238a1 1 0 0 0 0-1.962l-1.192-.238a1 1 0 0 1-.785-.785l-.238-1.192ZM6.949 5.684a1 1 0 0 0-1.898 0l-.683 2.051a1 1 0 0 1-.633.633l-2.051.683a1 1 0 0 0 0 1.898l2.051.684a1 1 0 0 1 .633.632l.683 2.051a1 1 0 0 0 1.898 0l.684-2.051a1 1 0 0 1 .632-.632l2.051-.684a1 1 0 0 0 0-1.898l-2.051-.683a1 1 0 0 1-.632-.633L6.95 5.684Z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white">You&apos;ve reached the free limit</p>
-              <p className="text-xs text-gray-400 mt-1">
-                Free accounts can track up to 3 habits. Upgrade to Premium for unlimited habits,
-                AI coaching, and more.
-              </p>
-              <button
-                type="button"
-                className="mt-3 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-[#FF8243] to-[#FFC0CB] hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                Upgrade to Premium
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {submitError && !isFreeTierHit && (
+      {submitError && (
         <p className="mb-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">
           {submitError}
         </p>

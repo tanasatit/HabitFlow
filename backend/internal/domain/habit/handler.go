@@ -35,10 +35,6 @@ func (h *Handler) Create(c *gin.Context) {
 
 	habit, err := h.svc.Create(userID, input)
 	if err != nil {
-		if errors.Is(err, ErrFreeTierLimit) {
-			response.Error(c, http.StatusForbidden, err.Error())
-			return
-		}
 		response.InternalError(c)
 		return
 	}

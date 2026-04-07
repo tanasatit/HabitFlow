@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from 'react'
 import { IChatMessage, ICalendarEvent } from '@/types/calendar'
 import { useSSE } from './useSSE'
 
-const STORAGE_KEY = 'aicoach_session'
 const TTL_MS = 7 * 24 * 60 * 60 * 1000 // 1 week
 
 interface StoredSession {
@@ -13,13 +12,13 @@ interface StoredSession {
   savedAt: number
 }
 
-function loadSession(): { conversationId: string | null; messages: IChatMessage[] } {
+function loadSession(key: string): { conversationId: string | null; messages: IChatMessage[] } {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(key)
     if (!raw) return { conversationId: null, messages: [] }
     const session: StoredSession = JSON.parse(raw)
     if (Date.now() - session.savedAt > TTL_MS) {
-      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(key)
       return { conversationId: null, messages: [] }
     }
     return {
@@ -31,28 +30,39 @@ function loadSession(): { conversationId: string | null; messages: IChatMessage[
   }
 }
 
-function saveSession(conversationId: string | null, messages: IChatMessage[]) {
+function saveSession(key: string, conversationId: string | null, messages: IChatMessage[]) {
   try {
     const session: StoredSession = {
       conversationId,
       messages: messages.map(m => ({ ...m, timestamp: m.timestamp.toISOString() })),
       savedAt: Date.now(),
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    localStorage.setItem(key, JSON.stringify(session))
   } catch {
     // ignore storage errors
   }
 }
 
-export function useAICoach() {
-  const initial = loadSession()
-  const [messages, setMessages] = useState<IChatMessage[]>(initial.messages)
-  const [conversationId, setConversationId] = useState<string | null>(initial.conversationId)
+export function useAICoach(userId?: string) {
+  const storageKey = userId ? `aicoach_session_${userId}` : null
+
+  const [messages, setMessages] = useState<IChatMessage[]>([])
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const { isStreaming, sendMessage, abort } = useSSE()
 
+  // Load session when user is identified
   useEffect(() => {
-    saveSession(conversationId, messages)
-  }, [conversationId, messages])
+    if (!storageKey) return
+    const session = loadSession(storageKey)
+    setMessages(session.messages)
+    setConversationId(session.conversationId)
+  }, [storageKey])
+
+  // Save session when it changes
+  useEffect(() => {
+    if (!storageKey || messages.length === 0) return
+    saveSession(storageKey, conversationId, messages)
+  }, [storageKey, conversationId, messages])
 
   const send = useCallback(async (message: string) => {
     const ts = Date.now()
@@ -107,8 +117,8 @@ export function useAICoach() {
   const reset = useCallback(() => {
     setMessages([])
     setConversationId(null)
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
+    if (storageKey) localStorage.removeItem(storageKey)
+  }, [storageKey])
 
   return { messages, isStreaming, send, abort, reset, conversationId }
 }

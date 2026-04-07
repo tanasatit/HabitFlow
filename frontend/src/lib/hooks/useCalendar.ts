@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { ICalendarEvent, ICreateEventInput } from '@/types/calendar'
+import { ICalendarEvent, ICreateEventInput, IUpdateEventInput } from '@/types/calendar'
 import { api } from '@/lib/api'
 
 export function useCalendar() {
@@ -35,6 +35,13 @@ export function useCalendar() {
     return {}
   }, [])
 
+  const updateEvent = useCallback(async (id: string, input: IUpdateEventInput): Promise<{ error?: string }> => {
+    const res = await api.patch<ICalendarEvent>(`/calendar/${id}`, input)
+    if (res.error) return { error: res.error }
+    if (res.data) setEvents(prev => prev.map(e => e.id === id ? res.data! : e))
+    return {}
+  }, [])
+
   const addEventsLocally = useCallback((newEvents: ICalendarEvent[]) => {
     setEvents(prev => {
       const ids = new Set(newEvents.map(e => e.id))
@@ -42,5 +49,5 @@ export function useCalendar() {
     })
   }, [])
 
-  return { events, loading, error, fetchEvents, createEvent, deleteEvent, addEventsLocally }
+  return { events, loading, error, fetchEvents, createEvent, updateEvent, deleteEvent, addEventsLocally }
 }

@@ -37,15 +37,6 @@ func (r *Repository) FindByUserID(userID uuid.UUID) ([]Habit, error) {
 	return habits, nil
 }
 
-func (r *Repository) CountActiveByUserID(userID uuid.UUID) (int64, error) {
-	var count int64
-	if err := r.db.Model(&Habit{}).
-		Where("user_id = ? AND is_active = ?", userID, true).
-		Count(&count).Error; err != nil {
-		return 0, err
-	}
-	return count, nil
-}
 
 func (r *Repository) Update(h *Habit) error {
 	return r.db.Save(h).Error

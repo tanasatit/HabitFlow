@@ -9,6 +9,7 @@ export interface ICalendarEvent {
   duration_minutes: number
   source: 'ai' | 'manual'
   is_completed: boolean
+  color: string
   created_at: string
   updated_at: string
 }
@@ -20,6 +21,13 @@ export interface ICreateEventInput {
   scheduled_date: string
   start_time: string
   duration_minutes?: number
+  color?: string
+}
+
+export interface IUpdateEventInput {
+  scheduled_date?: string
+  start_time?: string
+  color?: string
 }
 
 export interface ISSEEvent {

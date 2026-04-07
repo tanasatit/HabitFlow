@@ -36,40 +36,39 @@
 **Goal:** Users can register, login, logout. JWT working.
 
 ### Backend
-- [ ] `model/user.go` — User GORM model
-- [ ] `model/subscription.go` — Subscription model
-- [ ] Run `AutoMigrate` for User + Subscription tables
-- [ ] `repository/user_repository.go` — FindByEmail, FindByID, Create
-- [ ] `service/auth_service.go` — Register (hash password), Login (verify + issue JWT)
-- [ ] `handler/auth_handler.go` — POST /register, POST /login, POST /logout, GET /me
-- [ ] `middleware/auth.go` — JWT validation middleware
-- [ ] Test all auth endpoints with Postman/curl
+- [x] `model/user.go` — User GORM model
+- [x] `model/subscription.go` — Subscription model
+- [x] Run `AutoMigrate` for User + Subscription tables
+- [x] `repository/user_repository.go` — FindByEmail, FindByID, Create
+- [x] `service/auth_service.go` — Register (hash password), Login (verify + issue JWT)
+- [x] `handler/auth_handler.go` — POST /register, POST /login, POST /logout, GET /me
+- [x] `middleware/auth.go` — JWT validation middleware
+- [x] Test all auth endpoints with Postman/curl
 
 ### Frontend
-- [ ] `lib/auth.ts` — register(), login(), logout(), token storage (httpOnly cookie)
-- [ ] `lib/hooks/useAuth.ts` — auth state hook
-- [ ] `middleware.ts` — redirect to /login if no token
-- [ ] `app/(auth)/login/page.tsx` — login page
-- [ ] `app/(auth)/register/page.tsx` — register page
-- [ ] `app/(app)/layout.tsx` — server-side auth check wrapper
-- [ ] Wire up routes, test login flow end-to-end
+- [x] `lib/auth.ts` — register(), login(), logout(), token storage (httpOnly cookie)
+- [x] `lib/hooks/useAuth.ts` — auth state hook
+- [x] `middleware.ts` — redirect to /login if no token
+- [x] `app/(auth)/login/page.tsx` — login page
+- [x] `app/(auth)/register/page.tsx` — register page
+- [x] `app/(app)/layout.tsx` — server-side auth check wrapper
+- [x] Wire up routes, test login flow end-to-end
 
 ---
 
 ## Phase 3 — Habits CRUD ✅
-**Goal:** Users can create, view, edit, delete habits. Free tier limit enforced.
+**Goal:** Users can create, view, edit, delete habits.
 
 ### Backend
 - [x] `model/habit.go` — Habit GORM model
 - [x] `model/habit_log.go` — HabitLog GORM model
 - [x] Run `AutoMigrate` for new tables
-- [x] `repository/habit_repository.go` — CRUD + CountByUserID
-- [x] `service/habit_service.go` — full CRUD + free tier limit check (max 3)
+- [x] `repository/habit_repository.go` — CRUD
+- [x] `service/habit_service.go` — full CRUD
 - [x] `handler/habit_handler.go` — all habit endpoints
 - [x] `middleware/rbac.go` — RequirePremium(), RequireRole()
 - [x] Apply auth middleware to habit routes
 - [x] POST /habits/:id/log — mark habit complete today
-- [x] Test free tier limit enforced correctly
 
 ### Frontend
 - [x] `types/habit.ts` — IHabit, IHabitLog interfaces
@@ -79,7 +78,6 @@
 - [x] `app/(app)/habits/page.tsx` — list of user's habits
 - [x] `components/features/habits/HabitCreateForm.tsx` — form to create new habit
 - [x] `app/(app)/habits/[id]/page.tsx` — edit existing habit
-- [x] Show upgrade prompt when free user hits 3 habit limit
 - [x] Add satisfying checkmark animation on completion (Framer Motion)
 
 ---
@@ -119,48 +117,32 @@
 
 ---
 
-## Phase 6 — Calendar & AI Coach
+## Phase 6 — Calendar & AI Coach ✅
 **Goal:** Premium users chat with AI, plan auto-fills calendar.
 
 ### Backend
-- [ ] `model/calendar_event.go` — CalendarEvent GORM model
-- [ ] `model/ai_conversation.go` — AIConversation model
-- [ ] `internal/ai/client.go` — Gemini API client setup (OpenRouter fallback)
-- [ ] `internal/ai/tools.go` — MCP tool definitions (read/write calendar, get habits, get stats)
-- [ ] `service/ai_service.go` — orchestrate Gemini API call with tools + SSE streaming
-- [ ] `handler/ai_handler.go` — POST /ai/chat (SSE endpoint)
-- [ ] `repository/calendar_repository.go` — CRUD for calendar events
-- [ ] `handler/calendar_handler.go` — GET /calendar, POST /calendar
-- [ ] Apply RequirePremium() to all AI + calendar routes
-- [ ] Test AI generates plan and saves to DB
+- [x] `model/calendar_event.go` — CalendarEvent GORM model
+- [x] `model/ai_conversation.go` — AIConversation model
+- [x] `internal/ai/client.go` — Gemini API client setup (OpenRouter fallback)
+- [x] `internal/ai/tools.go` — MCP tool definitions (read/write calendar, get habits, get stats)
+- [x] `service/ai_service.go` — orchestrate Gemini API call with tools + SSE streaming
+- [x] `handler/ai_handler.go` — POST /ai/chat (SSE endpoint)
+- [x] `repository/calendar_repository.go` — CRUD for calendar events
+- [x] `handler/calendar_handler.go` — GET /calendar, POST /calendar
+- [x] Apply RequirePremium() to all AI + calendar routes
 
 ### Frontend
-- [ ] `lib/hooks/useSSE.ts` — EventSource hook for SSE streaming
-- [ ] `app/(app)/ai-coach/page.tsx` + `components/features/ai-coach/` — chat bubble UI
-- [ ] Real-time streaming response display (Framer Motion for tokens)
-- [ ] `app/(app)/calendar/page.tsx` — 7-day grid calendar
-- [ ] Calendar animates as AI fills in events
-- [ ] Show lock icon + upgrade prompt for free users
+- [x] `lib/hooks/useSSE.ts` — EventSource hook for SSE streaming
+- [x] `app/(app)/ai-coach/page.tsx` + `components/features/ai-coach/` — chat bubble UI
+- [x] Real-time streaming response display (Framer Motion for tokens)
+- [x] `app/(app)/calendar/page.tsx` — 7-day grid calendar
+- [x] Calendar animates as AI fills in events
+- [x] AI Coach shows lock modal for free users (premium gate)
+- [x] Users can manually create their own calendar events
 
 ---
 
-## Phase 7 — Leaderboard
-**Goal:** Premium users see weekly ranking.
-
-### Backend
-- [ ] Leaderboard query in `repository/` (see DATABASE.md for SQL)
-- [ ] GET /api/v1/leaderboard — top 20 premium users by weekly points
-- [ ] Cache result in Redis (refresh every 5 minutes)
-
-### Frontend
-- [ ] `components/ui/LeaderboardRow.tsx` — single row with rank, name, points
-- [ ] `app/(app)/leaderboard/page.tsx` — full leaderboard page
-- [ ] Smooth rank change animations (GSAP / Framer Motion)
-- [ ] Show lock + upgrade prompt for free users
-
----
-
-## Phase 8 — Google Calendar Sync (MCP)
+## Phase 7 — Google Calendar Sync (MCP)
 **Goal:** AI reads and writes Google Calendar for premium users.
 
 ### Backend
@@ -177,7 +159,7 @@
 
 ---
 
-## Phase 9 — DevSecOps Pipeline
+## Phase 8 — DevSecOps Pipeline
 **Goal:** CI/CD working. Security scanning in pipeline.
 
 - [ ] `.github/workflows/ci.yml` — on every push: run Go tests, Next.js lint (`next lint`), Semgrep security scan
