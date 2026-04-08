@@ -18,10 +18,11 @@ type Config struct {
 	OpenRouterModel   string
 	RedisURL          string
 	FrontendURL       string
-	GoogleClientID    string
-	GoogleClientSecret string
-	GoogleRedirectURL string
-	BackendURL        string
+	GoogleIdentityClientID     string
+	GoogleIdentityClientSecret string
+	GoogleIdentityRedirectURL  string
+	GoogleRedirectURL          string
+	BackendURL                 string
 }
 
 func Load() (*Config, error) {
@@ -38,11 +39,12 @@ func Load() (*Config, error) {
 		OpenRouterAPIKey: os.Getenv("OPENROUTER_API_KEY"),
 		OpenRouterModel:  getEnv("OPENROUTER_MODEL", "google/gemini-flash-1.5"),
 		RedisURL:           getEnv("REDIS_URL", "redis://localhost:6379"),
-		FrontendURL:        getEnv("FRONTEND_URL", "http://localhost:3000"),
-		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		GoogleRedirectURL:  getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/v1/google/callback"),
-		BackendURL:         getEnv("BACKEND_URL", "http://localhost:8080"),
+		FrontendURL:                getEnv("FRONTEND_URL", "http://localhost:3000"),
+		GoogleIdentityClientID:     os.Getenv("GOOGLE_IDENTITY_CLIENT_ID"),
+		GoogleIdentityClientSecret: os.Getenv("GOOGLE_IDENTITY_CLIENT_SECRET"),
+		GoogleIdentityRedirectURL:  getEnv("GOOGLE_IDENTITY_REDIRECT_URL", "http://localhost:8080/api/v1/auth/google/callback"),
+		GoogleRedirectURL:          getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/v1/google/callback"),
+		BackendURL:                 getEnv("BACKEND_URL", "http://localhost:8080"),
 	}
 
 	if err := cfg.validate(); err != nil {

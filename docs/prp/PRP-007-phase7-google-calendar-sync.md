@@ -29,29 +29,29 @@ Phase 6 established an internal calendar system with AI-powered event creation. 
 
 | # | Task | Status |
 |---|---|---|
-| B1 | Create `google_tokens` table + GORM model | |
-| B2 | Add `google_event_id` column to `calendar_events` table | |
-| B3 | Add Google OAuth2 config to `pkg/config/config.go` | |
-| B4 | Create `internal/domain/googlecal/` package (model, repository, service, handler) | |
-| B5 | Implement OAuth2 flow: initiate + callback endpoints | |
-| B6 | Implement Google Calendar read (list events for date range) | |
-| B7 | Implement Google Calendar write (create events) | |
-| B8 | Add `read_google_calendar` and `write_google_calendar` AI tools | |
-| B9 | Wire new tool execution in `aicoach/service.go` | |
-| B10 | Add disconnect endpoint (revoke + delete tokens) | |
-| B11 | Add status endpoint (check if Google Calendar is connected) | |
-| B12 | Register routes in `main.go` | |
+| B1 | Create `google_tokens` table + GORM model | done |
+| B2 | Add `google_event_id` column to `calendar_events` table | done |
+| B3 | Add Google OAuth2 config to `pkg/config/config.go` | done |
+| B4 | Create `internal/domain/googlecal/` package (model, repository, service, handler) | done |
+| B5 | Implement OAuth2 flow: initiate + callback endpoints | done |
+| B6 | Implement Google Calendar read (list events for date range) | done |
+| B7 | Implement Google Calendar write (create events) | done |
+| B8 | Add `read_google_calendar` and `write_google_calendar` AI tools | done |
+| B9 | Wire new tool execution in `aicoach/service.go` | done |
+| B10 | Add disconnect endpoint (revoke + delete tokens) | done |
+| B11 | Add status endpoint (check if Google Calendar is connected) | done |
+| B12 | Register routes in `main.go` | done |
 
 ### Frontend
 
 | # | Task | Status |
 |---|---|---|
-| F1 | Create settings page at `app/(app)/settings/page.tsx` | |
-| F2 | Add "Settings" nav link to `AppNav.tsx` | |
-| F3 | Create `GoogleCalendarConnect` component with connect/disconnect buttons | |
-| F4 | Create `useGoogleCalendar` hook for status + disconnect | |
-| F5 | Show Google Calendar sync status badge on calendar page | |
-| F6 | Add Google Calendar events (source: "google") visual distinction in calendar | |
+| F1 | Create settings page at `app/(app)/settings/page.tsx` | done |
+| F2 | Add "Settings" nav link to `AppNav.tsx` | done |
+| F3 | Create `GoogleCalendarConnect` component with connect/disconnect buttons | done |
+| F4 | Create `useGoogleCalendar` hook for status + disconnect | done |
+| F5 | Show Google Calendar sync status badge on calendar page | done |
+| F6 | Add Google Calendar events (source: "google") visual distinction in calendar | done |
 
 ---
 

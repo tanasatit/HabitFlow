@@ -146,16 +146,26 @@
 **Goal:** AI reads and writes Google Calendar for premium users.
 
 ### Backend
-- [x] Set up Google OAuth2 in Supabase or manually
-- [x] Store Google tokens per user in DB
-- [x] Connect MCP Google Calendar server in AI tools
-- [x] Test AI reads real Google Calendar events
-- [x] Test AI writes habit plan back to Google Calendar
+- [x] Set up Google OAuth2 (GoogleClientID, GoogleClientSecret, GoogleRedirectURL in config)
+- [x] `google_tokens` table + GORM model in `internal/domain/googlecal/`
+- [x] `google_event_id` column added to `calendar_events` via AutoMigrate
+- [x] `internal/domain/googlecal/` package: model, repository, service, handler
+- [x] OAuth2 flow: `GET /api/v1/google/auth` + `GET /api/v1/google/callback`
+- [x] Google Calendar read: `GET /api/v1/google/events`
+- [x] Google Calendar write: `POST /api/v1/google/events`
+- [x] Status endpoint: `GET /api/v1/google/status`
+- [x] Disconnect endpoint: `DELETE /api/v1/google/disconnect`
+- [x] AI tools: `read_google_calendar` + `write_google_calendar` in `internal/ai/tools.go`
+- [x] Wired in `aicoach/service.go` — conditional tool availability + system prompt update
+- [x] Routes registered in `main.go` under premium middleware
 
 ### Frontend
-- [x] "Connect Google Calendar" button in settings
-- [x] OAuth flow redirect
-- [x] Show sync status in calendar view
+- [x] Settings page at `app/(app)/settings/page.tsx`
+- [x] "Settings" nav link added to `AppNav.tsx`
+- [x] `GoogleCalendarConnect` component in `components/features/settings/`
+- [x] `useGoogleCalendar` hook in `lib/hooks/useGoogleCalendar.ts`
+- [x] Google Calendar connected badge shown on calendar page
+- [x] Google-sourced events have distinct visual styling
 
 ---
 

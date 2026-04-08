@@ -54,6 +54,10 @@ func (h *Handler) Login(c *gin.Context) {
 			response.Error(c, http.StatusUnauthorized, err.Error())
 			return
 		}
+		if errors.Is(err, ErrGoogleOnlyAccount) {
+			response.Error(c, http.StatusBadRequest, err.Error())
+			return
+		}
 		response.InternalError(c)
 		return
 	}

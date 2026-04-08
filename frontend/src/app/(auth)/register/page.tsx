@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { GoogleSignInButton } from '@/components/features/auth/GoogleSignInButton'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -70,6 +71,18 @@ export default function RegisterPage() {
             Create Account
           </Button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-gray-700" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="px-3 bg-gray-900 text-gray-500 tracking-wider">or</span>
+          </div>
+        </div>
+
+        <GoogleSignInButton label="Sign up with Google" />
 
         <p className="mt-6 text-center text-gray-400 text-sm">
           Already have an account?{' '}

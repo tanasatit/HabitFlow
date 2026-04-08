@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	ErrEmailTaken     = errors.New("email already in use")
-	ErrInvalidCreds   = errors.New("invalid email or password")
-	ErrUserNotFound   = errors.New("user not found")
+	ErrEmailTaken        = errors.New("email already in use")
+	ErrInvalidCreds      = errors.New("invalid email or password")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrGoogleOnlyAccount = errors.New("this account uses Google sign-in, please use the Google button to log in")
 )
 
 // tokenClaims is used only for JWT generation — kept internal.
@@ -72,7 +73,7 @@ func (s *Service) Register(input RegisterInput) (*User, string, error) {
 		return nil, "", err
 	}
 
-	token, err := s.generateToken(u)
+	token, err := s.GenerateTokenForUser(u)
 	if err != nil {
 		return nil, "", err
 	}
@@ -89,11 +90,16 @@ func (s *Service) Login(input LoginInput) (*User, string, error) {
 		return nil, "", err
 	}
 
+	// Block local login for Google-only accounts (no password set)
+	if u.PasswordHash == "" {
+		return nil, "", ErrGoogleOnlyAccount
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(input.Password)); err != nil {
 		return nil, "", ErrInvalidCreds
 	}
 
-	token, err := s.generateToken(u)
+	token, err := s.GenerateTokenForUser(u)
 	if err != nil {
 		return nil, "", err
 	}
@@ -112,7 +118,8 @@ func (s *Service) GetByID(id uuid.UUID) (*User, error) {
 	return u, nil
 }
 
-func (s *Service) generateToken(u *User) (string, error) {
+// GenerateTokenForUser creates a signed JWT for the given user. Exported for use by googleauth package.
+func (s *Service) GenerateTokenForUser(u *User) (string, error) {
 	expiry := time.Duration(s.cfg.JWTExpiryHours) * time.Hour
 	cl := tokenClaims{
 		UserID: u.ID,

@@ -20,6 +20,7 @@ import (
 	"github.com/habitflow/api/internal/domain/aicoach"
 	"github.com/habitflow/api/internal/domain/calendar"
 	"github.com/habitflow/api/internal/domain/dashboard"
+	"github.com/habitflow/api/internal/domain/googleauth"
 	"github.com/habitflow/api/internal/domain/googlecal"
 	"github.com/habitflow/api/internal/domain/habit"
 	"github.com/habitflow/api/internal/domain/user"
@@ -87,6 +88,9 @@ func main() {
 	googleCalHandler := googlecal.NewHandler(googleCalSvc)
 	calendarSvc.SetGoogleCalService(googleCalSvc)
 
+	googleAuthSvc := googleauth.NewService(userRepo, userSvc, cfg)
+	googleAuthHandler := googleauth.NewHandler(googleAuthSvc, cfg)
+
 	aiClient := internalai.NewClient(cfg.GeminiAPIKey, cfg.GeminiModel, cfg.OpenRouterAPIKey, cfg.OpenRouterModel)
 	aiCoachRepo := aicoach.NewRepository(db)
 	aiCoachSvc := aicoach.NewService(aiClient, habitSvc, habitRepo, calendarSvc, dashboardSvc, aiCoachRepo, googleCalSvc)
@@ -104,6 +108,8 @@ func main() {
 			auth.POST("/login", userHandler.Login)
 			auth.POST("/logout", userHandler.Logout)
 			auth.GET("/me", middleware.Auth(cfg), userHandler.Me)
+			auth.GET("/google", googleAuthHandler.InitiateAuth)
+			auth.GET("/google/callback", googleAuthHandler.Callback)
 		}
 
 		// Dashboard route — requires auth
@@ -174,6 +180,7 @@ func main() {
 	<-quit
 
 	log.Println("Shutting down server...")
+	googleAuthSvc.Stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

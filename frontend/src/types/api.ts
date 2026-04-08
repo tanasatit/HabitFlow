@@ -22,6 +22,8 @@ export interface IUser {
   email: string
   name: string
   role: 'free' | 'premium' | 'admin'
+  google_id?: string
+  avatar_url?: string
   created_at: string
 }
 

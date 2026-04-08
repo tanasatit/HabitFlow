@@ -35,6 +35,37 @@ func (r *Repository) FindByID(id uuid.UUID) (*User, error) {
 	return &u, nil
 }
 
+// FindByGoogleID looks up a user by their Google account ID.
+func (r *Repository) FindByGoogleID(googleID string) (*User, error) {
+	var u User
+	if err := r.db.Where("google_id = ?", googleID).First(&u).Error; err != nil {
+		return nil, fmt.Errorf("user.Repository.FindByGoogleID: %w", err)
+	}
+	return &u, nil
+}
+
+// UpdateGoogleID links a Google account to an existing user and sets avatar_url.
+func (r *Repository) UpdateGoogleID(userID uuid.UUID, googleID string, avatarURL string) error {
+	if err := r.db.Model(&User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"google_id":  googleID,
+		"avatar_url": avatarURL,
+	}).Error; err != nil {
+		return fmt.Errorf("user.Repository.UpdateGoogleID: %w", err)
+	}
+	return nil
+}
+
+// UpdateNameAndAvatar updates the name and avatar_url for an existing user.
+func (r *Repository) UpdateNameAndAvatar(userID uuid.UUID, name string, avatarURL string) error {
+	if err := r.db.Model(&User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"name":       name,
+		"avatar_url": avatarURL,
+	}).Error; err != nil {
+		return fmt.Errorf("user.Repository.UpdateNameAndAvatar: %w", err)
+	}
+	return nil
+}
+
 // FindAllPaginated returns users with optional search filtering, ordered by created_at DESC.
 func (r *Repository) FindAllPaginated(page, limit int, search string) ([]User, int64, error) {
 	var users []User

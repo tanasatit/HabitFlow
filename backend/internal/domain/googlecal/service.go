@@ -36,13 +36,13 @@ type Service struct {
 }
 
 func NewService(repo *Repository, cfg *config.Config) *Service {
-	if cfg.GoogleClientID == "" {
-		log.Println("WARNING: GOOGLE_CLIENT_ID is unset — Google Calendar OAuth will fail at runtime")
+	if cfg.GoogleIdentityClientID == "" {
+		log.Println("WARNING: GOOGLE_IDENTITY_CLIENT_ID is unset — Google Calendar OAuth will fail at runtime")
 	}
 
 	oauthCfg := &oauth2.Config{
-		ClientID:     cfg.GoogleClientID,
-		ClientSecret: cfg.GoogleClientSecret,
+		ClientID:     cfg.GoogleIdentityClientID,
+		ClientSecret: cfg.GoogleIdentityClientSecret,
 		RedirectURL:  cfg.GoogleRedirectURL,
 		Scopes:       []string{gcal.CalendarScope},
 		Endpoint:     google.Endpoint,
