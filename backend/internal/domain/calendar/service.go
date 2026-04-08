@@ -1,17 +1,31 @@
 package calendar
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 )
 
+// googleCalendarUpdater is a minimal interface to avoid a hard import cycle.
+type googleCalendarUpdater interface {
+	IsConnected(userID uuid.UUID) bool
+	UpdateEvent(ctx context.Context, userID uuid.UUID, googleEventID, title, description, scheduledDate, startTime string, durationMinutes int) error
+}
+
 type Service struct {
-	repo *Repository
+	repo         *Repository
+	googleCalSvc googleCalendarUpdater
 }
 
 func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
+}
+
+// SetGoogleCalService wires the Google Calendar service after construction to avoid import cycles.
+func (s *Service) SetGoogleCalService(g googleCalendarUpdater) {
+	s.googleCalSvc = g
 }
 
 func (s *Service) GetEvents(userID uuid.UUID, startDate, endDate string) ([]CalendarEvent, error) {
@@ -80,8 +94,21 @@ func (s *Service) DeleteEvent(userID uuid.UUID, eventID uuid.UUID) error {
 	return s.repo.Delete(eventID, userID)
 }
 
-func (s *Service) UpdateEvent(userID, eventID uuid.UUID, input UpdateEventInput) (*CalendarEvent, error) {
-	return s.repo.Update(eventID, userID, input)
+func (s *Service) UpdateEvent(ctx context.Context, userID, eventID uuid.UUID, input UpdateEventInput) (*CalendarEvent, error) {
+	event, err := s.repo.Update(eventID, userID, input)
+	if err != nil {
+		return nil, err
+	}
+	// Mirror changes to Google Calendar if the event originated there and user is connected.
+	if s.googleCalSvc != nil && event.GoogleEventID != "" && s.googleCalSvc.IsConnected(userID) {
+		if gErr := s.googleCalSvc.UpdateEvent(ctx, userID, event.GoogleEventID,
+			input.Title, input.Description, input.ScheduledDate, input.StartTime, input.DurationMinutes,
+		); gErr != nil {
+			log.Printf("calendar: google sync failed for event %s: %v", event.GoogleEventID, gErr)
+			// Non-fatal — local update already succeeded
+		}
+	}
+	return event, nil
 }
 
 func (s *Service) ClearWeek(userID uuid.UUID, startDate, endDate string) error {

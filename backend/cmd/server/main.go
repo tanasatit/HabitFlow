@@ -85,6 +85,7 @@ func main() {
 	googleCalRepo := googlecal.NewRepository(db)
 	googleCalSvc := googlecal.NewService(googleCalRepo, cfg)
 	googleCalHandler := googlecal.NewHandler(googleCalSvc)
+	calendarSvc.SetGoogleCalService(googleCalSvc)
 
 	aiClient := internalai.NewClient(cfg.GeminiAPIKey, cfg.GeminiModel, cfg.OpenRouterAPIKey, cfg.OpenRouterModel)
 	aiCoachRepo := aicoach.NewRepository(db)

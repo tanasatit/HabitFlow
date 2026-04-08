@@ -34,8 +34,11 @@ type CreateEventInput struct {
 }
 
 type UpdateEventInput struct {
+	Title         string `json:"title"`
+	Description   string `json:"description"`
 	ScheduledDate string `json:"scheduled_date"`
 	StartTime     string `json:"start_time"`
+	DurationMinutes int  `json:"duration_minutes"`
 	Color         string `json:"color"`
 }
 

@@ -25,8 +25,11 @@ export interface ICreateEventInput {
 }
 
 export interface IUpdateEventInput {
+  title?: string
+  description?: string
   scheduled_date?: string
   start_time?: string
+  duration_minutes?: number
   color?: string
 }
 

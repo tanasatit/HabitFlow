@@ -20,7 +20,9 @@ export function useGoogleCalendar() {
   }, [])
 
   useEffect(() => {
-    fetchStatus()
+    fetchStatus().catch(() => {
+      setLoading(false)
+    })
   }, [fetchStatus])
 
   const disconnect = useCallback(async (): Promise<{ error?: string }> => {

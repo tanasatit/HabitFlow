@@ -6,20 +6,26 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { useGoogleCalendar } from '@/lib/hooks/useGoogleCalendar'
 import { CalendarGrid } from '@/components/features/calendar/CalendarGrid'
 import { CreateEventModal } from '@/components/features/calendar/CreateEventModal'
+import { EditEventModal } from '@/components/features/calendar/EditEventModal'
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt'
+import type { ICalendarEvent } from '@/types/calendar'
 
-function getMonday(date: Date): string {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  d.setDate(diff)
-  return d.toISOString().split('T')[0]
+/** Format a Date as YYYY-MM-DD using LOCAL timezone (not UTC). */
+function toLocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Returns a week-start date such that today lands in the middle (4th of 7 columns). */
+function getCenteredWeekStart(): string {
+  const d = new Date()
+  d.setDate(d.getDate() - 3)
+  return toLocalDateStr(d)
 }
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + 'T00:00:00')
   d.setDate(d.getDate() + days)
-  return d.toISOString().split('T')[0]
+  return toLocalDateStr(d)
 }
 
 function formatWeekLabel(weekStart: string): string {
@@ -36,11 +42,12 @@ export default function CalendarPage() {
   const { connected: googleConnected } = useGoogleCalendar()
   const [weekStart, setWeekStart] = useState('')
   const [addEventDate, setAddEventDate] = useState<string | null>(null)
+  const [editingEvent, setEditingEvent] = useState<ICalendarEvent | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    setWeekStart(getMonday(new Date()))
+    setWeekStart(getCenteredWeekStart())
   }, [])
 
   // Default to true while mounting so server renders the full UI (avoids hydration mismatch)
@@ -48,14 +55,14 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (!isPremium || weekStart === '') return
-    fetchEvents(weekStart, addDays(weekStart, 6))
+    fetchEvents(weekStart, addDays(weekStart, 6)).catch(() => {})
   }, [weekStart, isPremium, fetchEvents])
 
   const prevWeek = useCallback(() => setWeekStart(w => addDays(w, -7)), [])
   const nextWeek = useCallback(() => setWeekStart(w => addDays(w, 7)), [])
-  const goToday = useCallback(() => setWeekStart(getMonday(new Date())), [])
+  const goToday = useCallback(() => setWeekStart(getCenteredWeekStart()), [])
 
-  const isCurrentWeek = mounted && weekStart !== '' && weekStart === getMonday(new Date())
+  const isCurrentWeek = mounted && weekStart !== '' && weekStart === getCenteredWeekStart()
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-6 py-4">
@@ -107,13 +114,14 @@ export default function CalendarPage() {
           <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-hidden">
           <CalendarGrid
             events={events}
             weekStartDate={weekStart}
             onDeleteEvent={async (id) => { await deleteEvent(id) }}
             onAddEvent={(date) => setAddEventDate(date)}
             onUpdateEvent={async (id, date) => { await updateEvent(id, { scheduled_date: date }) }}
+            onEditEvent={(event) => setEditingEvent(event)}
           />
         </div>
       )}
@@ -122,8 +130,16 @@ export default function CalendarPage() {
         isOpen={!!addEventDate}
         defaultDate={addEventDate ?? weekStart}
         onClose={() => setAddEventDate(null)}
-        onCreated={() => setAddEventDate(null)}
+        onCreated={() => { setAddEventDate(null); fetchEvents(weekStart, addDays(weekStart, 6)) }}
         createEvent={createEvent}
+      />
+
+      <EditEventModal
+        event={editingEvent}
+        onClose={() => setEditingEvent(null)}
+        onSaved={() => fetchEvents(weekStart, addDays(weekStart, 6))}
+        updateEvent={(id, input) => updateEvent(id, input)}
+        onDelete={async (id) => { await deleteEvent(id); fetchEvents(weekStart, addDays(weekStart, 6)) }}
       />
     </div>
   )

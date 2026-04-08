@@ -285,6 +285,38 @@ func (s *Service) ReadEvents(ctx context.Context, userID uuid.UUID, startDate, e
 	return result, nil
 }
 
+func (s *Service) UpdateEvent(ctx context.Context, userID uuid.UUID, googleEventID, title, description, scheduledDate, startTime string, durationMinutes int) error {
+	svc, err := s.getCalendarService(ctx, userID)
+	if err != nil {
+		return err
+	}
+	existing, err := svc.Events.Get("primary", googleEventID).Do()
+	if err != nil {
+		return fmt.Errorf("google calendar get event: %w", err)
+	}
+	if title != "" {
+		existing.Summary = title
+	}
+	if description != "" {
+		existing.Description = description
+	}
+	if scheduledDate != "" && startTime != "" {
+		startDT := fmt.Sprintf("%sT%s:00", scheduledDate, startTime)
+		t, parseErr := time.Parse("2006-01-02T15:04:05", startDT)
+		if parseErr == nil {
+			dur := durationMinutes
+			if dur <= 0 {
+				dur = 30
+			}
+			end := t.Add(time.Duration(dur) * time.Minute)
+			existing.Start = &gcal.EventDateTime{DateTime: t.Format(time.RFC3339), TimeZone: "UTC"}
+			existing.End = &gcal.EventDateTime{DateTime: end.Format(time.RFC3339), TimeZone: "UTC"}
+		}
+	}
+	_, err = svc.Events.Update("primary", googleEventID, existing).Do()
+	return err
+}
+
 func (s *Service) WriteEvents(ctx context.Context, userID uuid.UUID, inputs []CreateGoogleEventInput) ([]GoogleCalendarEvent, error) {
 	svc, err := s.getCalendarService(ctx, userID)
 	if err != nil {

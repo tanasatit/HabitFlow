@@ -6,22 +6,33 @@ async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<IApiResponse<T>> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  })
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    })
 
-  const json = await res.json()
+    let json: IApiResponse<T>
+    try {
+      json = await res.json()
+    } catch {
+      return { error: `Server returned non-JSON response (${res.status})` }
+    }
 
-  if (!res.ok) {
-    return { error: json.error ?? 'Request failed' }
+    if (!res.ok) {
+      return { error: (json as { error?: string }).error ?? 'Request failed' }
+    }
+
+    return json
+  } catch (err) {
+    // Network error (backend not reachable, DNS failure, etc.)
+    const msg = err instanceof Error ? err.message : 'Network error'
+    return { error: msg }
   }
-
-  return json as IApiResponse<T>
 }
 
 async function paginatedRequest<T>(path: string): Promise<IApiListResponse<T>> {

@@ -75,7 +75,7 @@ func (h *Handler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	event, err := h.svc.UpdateEvent(userID, eventID, input)
+	event, err := h.svc.UpdateEvent(c.Request.Context(), userID, eventID, input)
 	if err != nil {
 		if err.Error() == "event not found" {
 			response.NotFound(c, "event not found")

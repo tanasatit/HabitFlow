@@ -59,11 +59,20 @@ func (r *Repository) FindByIDAndUserID(id, userID uuid.UUID) (*CalendarEvent, er
 // Update performs a partial update on fields provided in input, scoped to the owning user.
 func (r *Repository) Update(eventID, userID uuid.UUID, input UpdateEventInput) (*CalendarEvent, error) {
 	updates := map[string]interface{}{}
+	if input.Title != "" {
+		updates["title"] = input.Title
+	}
+	if input.Description != "" {
+		updates["description"] = input.Description
+	}
 	if input.ScheduledDate != "" {
 		updates["scheduled_date"] = input.ScheduledDate
 	}
 	if input.StartTime != "" {
 		updates["start_time"] = input.StartTime
+	}
+	if input.DurationMinutes > 0 {
+		updates["duration_minutes"] = input.DurationMinutes
 	}
 	if input.Color != "" {
 		updates["color"] = input.Color
