@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Oasis - Weekly Momentum</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary": "#FF8243",
+                "secondary": "#FFC0CB",
+                "tertiary": "#069494",
+                "background": "#FFF9F5",
+                "surface": "#ffffff",
+                "on-background": "#302e2c",
+                "outline-variant": "#e0dad6",
+                "surface-container-highest": "#f4f1ef",
+                "on-surface-variant": "#5e5b58",
+                "outline": "#e0dad6",
+                "mango": "#FF8243",
+                "teal": "#069494",
+                "earthy": "#8a3500"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "1.5rem",
+                "xl": "2rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Be Vietnam Pro"],
+                "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #FFF9F5; color: #302E2C; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .calendar-grid { display: grid; grid-template-columns: 80px repeat(7, 1fr); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex min-h-screen overflow-hidden">
+<!-- SideNavBar (Matching SCREEN_20) -->
+<aside class="hidden lg:flex h-full w-72 bg-background border-r border-outline flex-col py-8 gap-2 z-50 shrink-0">
+<div class="px-8 mb-8">
+<h2 class="font-headline font-black text-primary text-xl tracking-tight italic">The Kinetic Oasis</h2>
+<p class="font-body text-on-background/40 text-[10px] uppercase tracking-[0.2em] font-bold mt-1">Stay Kinetic</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="text-on-background/60 mx-6 py-3.5 px-6 flex items-center gap-4 hover:bg-surface-container-highest/50 rounded-full transition-all cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label font-bold text-sm tracking-wide">Dashboard</span>
+</div>
+<div class="bg-primary text-white rounded-full mx-6 py-3.5 px-6 flex items-center gap-4 cursor-pointer shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label font-bold text-sm tracking-wide">Calendar</span>
+</div>
+<div class="text-on-background/60 mx-6 py-3.5 px-6 flex items-center gap-4 hover:bg-surface-container-highest/50 rounded-full transition-all cursor-pointer">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="font-label font-bold text-sm tracking-wide">Tasks</span>
+</div>
+<div class="text-on-background/60 mx-6 py-3.5 px-6 flex items-center gap-4 hover:bg-surface-container-highest/50 rounded-full transition-all cursor-pointer">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label font-bold text-sm tracking-wide">Journal</span>
+</div>
+<div class="mt-10 px-10">
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-on-background/40 mb-4">Quick Actions</h3>
+<button class="w-full py-4 bg-white border border-primary text-primary rounded-2xl font-headline font-black text-[11px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                New Event
+            </button>
+</div>
+</nav>
+<div class="p-6 mt-auto">
+<div class="bg-secondary/10 border border-secondary/20 p-5 rounded-2xl">
+<h4 class="font-label font-bold text-on-background text-xs uppercase tracking-widest">Pro Max Active</h4>
+<p class="text-[10px] text-on-background/60 mt-1 font-medium">Infinite Memory Enabled</p>
+</div>
+<div class="mt-4 flex flex-col gap-1">
+<a class="text-on-background/40 hover:text-on-background px-6 py-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help</span> Support
+            </a>
+<a class="text-on-background/40 hover:text-primary px-6 py-2 text-[11px] font-bold uppercase tracking-widest flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">logout</span> Logout
+            </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto relative h-screen bg-background flex flex-col no-scrollbar">
+<!-- Top App Bar (Light & Airy) -->
+<header class="flex justify-between items-center w-full px-12 py-8 sticky top-0 z-40 bg-background/90 backdrop-blur-md">
+<div class="flex flex-col">
+<h2 class="text-3xl font-black text-on-background font-headline tracking-tight italic">Weekly Momentum</h2>
+<div class="flex items-center gap-4 mt-2">
+<button class="w-8 h-8 rounded-full border border-outline/50 hover:border-primary flex items-center justify-center transition-all group">
+<span class="material-symbols-outlined text-sm text-on-background/40 group-hover:text-primary">chevron_left</span>
+</button>
+<span class="text-xs font-black font-headline uppercase tracking-widest text-on-background/60">Oct 23 — Oct 29, 2024</span>
+<button class="w-8 h-8 rounded-full border border-outline/50 hover:border-primary flex items-center justify-center transition-all group">
+<span class="material-symbols-outlined text-sm text-on-background/40 group-hover:text-primary">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<button class="material-symbols-outlined text-on-background/40 hover:text-on-background transition-colors">notifications</button>
+<div class="w-12 h-12 rounded-full border-2 border-primary overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqcnB5zgQSbt5OZdPzoLNHj_qUWpuiIP-7WYE1l6dC9x06Yf8irdXLV5PLF75KoLdr7gvWT3RBsnrpOuHScwUXV43QwV2zUvp6YBaobqCXiTb0ioXx8_kUxPGbedHhS2VLjN5PEV0lUBO5Z5AHNDUxi-SE8SDPWEa9jn-B28Pc6umH-tIHn4YuLRXfqMpjf-U5zQKItAM915dqzdyzWCsCQ0qtii2ofdS-SooZ-_iSrX-xuiJhPqlJTJg4W-jOvEUbOhSzMl6eRN5U"/>
+</div>
+</div>
+</header>
+<!-- Calendar Container -->
+<section class="px-12 pb-12 flex-1">
+<div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-outline/30">
+<!-- Day Labels -->
+<div class="calendar-grid bg-white py-8 border-b border-outline/20">
+<div class="flex items-center justify-center border-r border-outline/10">
+<span class="text-[10px] font-black text-on-background/30 tracking-[0.2em] uppercase">GMT-5</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Mon</span>
+<span class="text-xl font-black font-headline mt-1">23</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Tue</span>
+<span class="text-xl font-black font-headline mt-1">24</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-primary uppercase tracking-widest">Wed</span>
+<span class="text-xl font-black font-headline mt-1 text-primary">25</span>
+<div class="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Thu</span>
+<span class="text-xl font-black font-headline mt-1">26</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Fri</span>
+<span class="text-xl font-black font-headline mt-1">27</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Sat</span>
+<span class="text-xl font-black font-headline mt-1">28</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-black text-on-background/40 uppercase tracking-widest">Sun</span>
+<span class="text-xl font-black font-headline mt-1">29</span>
+</div>
+</div>
+<!-- Scrollable Grid Body -->
+<div class="relative h-[650px] overflow-y-auto no-scrollbar">
+<!-- Grid Lines -->
+<div class="absolute inset-0 z-0">
+<div class="calendar-grid h-full w-full pointer-events-none">
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div class="border-r border-outline/10"></div>
+<div></div>
+</div>
+<!-- Hour Markers -->
+<div class="w-full">
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">08:00</span>
+</div>
+</div>
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">09:00</span>
+</div>
+</div>
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">10:00</span>
+</div>
+</div>
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">11:00</span>
+</div>
+</div>
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">12:00</span>
+</div>
+</div>
+<div class="flex h-28 border-b border-outline/5">
+<div class="w-[80px] flex items-start justify-center pt-4">
+<span class="text-[10px] font-bold text-on-background/20">13:00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Actual Events Overlay -->
+<div class="absolute inset-0 z-10 pointer-events-none p-0">
+<div class="calendar-grid w-full h-full">
+<div class="w-[80px]"></div>
+<!-- Monday -->
+<div class="relative pt-28 px-2">
+<div class="bg-teal text-white h-36 rounded-2xl p-4 pointer-events-auto transition-transform hover:scale-[1.02] cursor-pointer">
+<p class="text-[9px] font-black uppercase tracking-widest opacity-80">09:00 - 10:30</p>
+<p class="text-sm font-black font-headline mt-1 leading-tight">Deep Work: Design</p>
+</div>
+</div>
+<!-- Tuesday -->
+<div class="relative pt-[224px] px-2">
+<div class="bg-secondary text-on-background h-24 rounded-2xl p-4 pointer-events-auto transition-transform hover:scale-[1.02] cursor-pointer">
+<p class="text-[9px] font-black uppercase tracking-widest opacity-60">10:00 - 11:00</p>
+<p class="text-sm font-black font-headline mt-1 leading-tight">Pilates Flow</p>
+</div>
+</div>
+<!-- Wednesday -->
+<div class="relative pt-12 px-2">
+<div class="bg-earthy text-white h-56 rounded-2xl p-4 pointer-events-auto flex flex-col transition-transform hover:scale-[1.02] cursor-pointer">
+<p class="text-[9px] font-black uppercase tracking-widest opacity-80">08:30 - 10:30</p>
+<p class="text-sm font-black font-headline mt-1 leading-tight">Project Oasis Launch</p>
+<div class="mt-auto flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white/20 overflow-hidden">
+<img alt="Team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEg_ZSMowMvXzPQUNRo8CzezznPKRtnduyqpy46NgbfWv-ayYnEAXRJYqjkl3TEoBl4SdTGcFnC_6TDJwDKGVOUptjzKucfJR7Ha97mWjnBjpv-qKPoLIpoYyUHRI5u354afrYXORZ83eVn0wsFc0ZM2F-kwgmrYsi-25SkJX99OTNcEqqNLv-3G_l3xTYjn8sweVvTyy22fGJTZCgByUP8t7v6YWTcdM5y5yao1IUJZcKbaFlW4dQXavYgTf3OaQVLBAoMndCSe7Y"/>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-white/20 overflow-hidden">
+<img alt="Team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-VfMhG1VZWAdrJFrtBRczZAtp52-Z4q6fZC7TLshkPb3IQlOK3-A8bpC6yTrmRGtsmq-9-aPQGTY6bEXZkvB5X_YCByQnsRx0mHzi8UTG_bhl82pGBdmwr5Sz9VPSRuvOUuc8lHwfOWpVXVsPG89r1r4BWIUxTw1jeTEa_sWnuSeqMOhGg4jRkrqGqNg_HhEOXFOHclf3KyhiCKpLQvklA1MBo-erY2NvgfUwo0e40VUDyuc8Dd57s1BMbT792p47uAXllWsapFMK"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Thursday -->
+<div class="relative pt-[336px] px-2">
+<div class="bg-teal text-white h-24 rounded-2xl p-4 pointer-events-auto transition-transform hover:scale-[1.02] cursor-pointer">
+<p class="text-[9px] font-black uppercase tracking-widest opacity-80">11:00 - 12:00</p>
+<p class="text-sm font-black font-headline mt-1 leading-tight">Water Intake Goal</p>
+</div>
+</div>
+<!-- Friday -->
+<div class="relative pt-28 px-2">
+<div class="bg-mango text-white h-28 rounded-2xl p-4 pointer-events-auto transition-transform hover:scale-[1.02] cursor-pointer">
+<p class="text-[9px] font-black uppercase tracking-widest opacity-80">09:00 - 10:00</p>
+<p class="text-sm font-black font-headline mt-1 leading-tight">Weekly Review</p>
+</div>
+</div>
+<!-- Sat & Sun -->
+<div></div>
+<div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Dashboard Stats (Lightened & Spaced) -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-[2rem] border border-outline/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-mango"></div>
+<h4 class="text-[10px] font-black uppercase tracking-widest text-on-background/40">Focus Streak</h4>
+<div class="flex items-baseline gap-3 mt-4">
+<span class="text-5xl font-black font-headline text-mango">12</span>
+<span class="text-xs font-bold text-on-background/50">Days Active</span>
+</div>
+</div>
+<div class="bg-white p-8 rounded-[2rem] border border-outline/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-teal"></div>
+<h4 class="text-[10px] font-black uppercase tracking-widest text-on-background/40">Tasks Completed</h4>
+<div class="flex items-baseline gap-3 mt-4">
+<span class="text-5xl font-black font-headline text-teal">84%</span>
+<span class="text-xs font-bold text-on-background/50">This Week</span>
+</div>
+</div>
+<div class="bg-white p-8 rounded-[2rem] border border-outline/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-earthy"></div>
+<h4 class="text-[10px] font-black uppercase tracking-widest text-on-background/40">Next Habit</h4>
+<div class="flex items-center gap-4 mt-4">
+<div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center text-on-background">
+<span class="material-symbols-outlined">self_improvement</span>
+</div>
+<span class="text-sm font-black font-headline">Afternoon Meditation</span>
+</div>
+</div>
+</div>
+</section>
+<!-- FAB (Minimal Floating Button) -->
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-mango rounded-full text-white shadow-2xl shadow-mango/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</main>
+<!-- Mobile Navigation (Bottom Bar - Light Theme) -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl flex justify-around py-6 border-t border-outline/20 z-50">
+<button class="flex flex-col items-center gap-1 text-on-background/30">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Plan</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-background/30">
+<span class="material-symbols-outlined">bolt</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Coach</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-background/30">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Me</span>
+</button>
+</nav>
+</body></html>

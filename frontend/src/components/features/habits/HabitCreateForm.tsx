@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import type { ICreateHabitInput } from '@/types/habit'
 
@@ -79,17 +78,17 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.15 }}
-      className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-lg mx-auto"
+      className="bg-surface rounded-2xl p-8 w-full max-w-lg border border-outline shadow-xl mx-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-habit-title"
     >
-      <h2 id="create-habit-title" className="text-xl font-bold text-white mb-6">
+      <h2 id="create-habit-title" className="font-headline font-bold text-2xl text-on-background mb-6">
         Create a new habit
       </h2>
 
       {submitError && (
-        <p className="mb-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">
+        <p className="mb-4 text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {submitError}
         </p>
       )}
@@ -109,7 +108,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
 
         {/* Category */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="category" className="text-sm text-gray-300">
+          <label htmlFor="category" className="text-sm font-bold text-on-background mb-1 block">
             Category
           </label>
           <select
@@ -117,7 +116,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
             name="category"
             value={form.category ?? ''}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="">No category</option>
             <option value="health">Health</option>
@@ -129,7 +128,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
 
         {/* Frequency */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="frequency" className="text-sm text-gray-300">
+          <label htmlFor="frequency" className="text-sm font-bold text-on-background mb-1 block">
             Frequency
           </label>
           <select
@@ -137,7 +136,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
             name="frequency"
             value={form.frequency ?? 'daily'}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="daily">Every day</option>
             <option value="weekdays">Weekdays</option>
@@ -147,7 +146,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
 
         {/* Target time */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="target_time" className="text-sm text-gray-300">
+          <label htmlFor="target_time" className="text-sm font-bold text-on-background mb-1 block">
             Target time
           </label>
           <select
@@ -155,7 +154,7 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
             name="target_time"
             value={form.target_time ?? 'anytime'}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="morning">Morning</option>
             <option value="afternoon">Afternoon</option>
@@ -166,9 +165,9 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
 
         {/* Description */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="description" className="text-sm text-gray-300">
+          <label htmlFor="description" className="text-sm font-bold text-on-background mb-1 block">
             Description{' '}
-            <span className="text-gray-500 text-xs">(optional)</span>
+            <span className="text-on-surface-variant text-xs font-normal">(optional)</span>
           </label>
           <textarea
             id="description"
@@ -178,26 +177,29 @@ export function HabitCreateForm({ onSuccess, onCancel, onCreate }: HabitCreateFo
             placeholder="Add a note about this habit..."
             maxLength={500}
             rows={3}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors placeholder:text-gray-500 resize-none"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/50 resize-none"
           />
           {errors.description && (
-            <p className="text-xs text-red-400">{errors.description}</p>
+            <p className="text-xs text-red-500">{errors.description}</p>
           )}
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button
+          <button
             type="button"
-            variant="ghost"
             onClick={onCancel}
-            className="flex-1"
             disabled={loading}
+            className="flex-1 border border-outline text-on-background rounded-xl px-6 py-2.5 font-bold text-sm hover:bg-surface-variant transition-colors cursor-pointer disabled:opacity-60"
           >
             Cancel
-          </Button>
-          <Button type="submit" variant="primary" loading={loading} className="flex-1">
-            Create habit
-          </Button>
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-primary text-white rounded-xl px-6 py-2.5 font-bold text-sm hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-60"
+          >
+            {loading ? 'Creating...' : 'Create habit'}
+          </button>
         </div>
       </form>
     </motion.div>

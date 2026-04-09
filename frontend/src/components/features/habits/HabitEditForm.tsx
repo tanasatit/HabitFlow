@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import type { IHabitWithStreak, IUpdateHabitInput } from '@/types/habit'
 
@@ -83,14 +82,14 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
 
   return (
     <div
-      className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full"
+      className="bg-surface border border-outline rounded-2xl p-8 w-full"
       role="form"
       aria-label="Edit habit"
     >
-      <h2 className="text-xl font-bold text-white mb-6">Edit habit</h2>
+      <h2 className="font-headline font-bold text-2xl text-on-background mb-6">Edit habit</h2>
 
       {submitError && (
-        <p className="mb-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">
+        <p className="mb-4 text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {submitError}
         </p>
       )}
@@ -109,7 +108,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
 
         {/* Category */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="edit-category" className="text-sm text-gray-300">
+          <label htmlFor="edit-category" className="text-sm font-bold text-on-background mb-1 block">
             Category
           </label>
           <select
@@ -117,7 +116,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
             name="category"
             value={form.category ?? ''}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="">No category</option>
             <option value="health">Health</option>
@@ -129,7 +128,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
 
         {/* Frequency */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="edit-frequency" className="text-sm text-gray-300">
+          <label htmlFor="edit-frequency" className="text-sm font-bold text-on-background mb-1 block">
             Frequency
           </label>
           <select
@@ -137,7 +136,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
             name="frequency"
             value={form.frequency ?? 'daily'}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="daily">Every day</option>
             <option value="weekdays">Weekdays</option>
@@ -147,7 +146,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
 
         {/* Target time */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="edit-target_time" className="text-sm text-gray-300">
+          <label htmlFor="edit-target_time" className="text-sm font-bold text-on-background mb-1 block">
             Target time
           </label>
           <select
@@ -155,7 +154,7 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
             name="target_time"
             value={form.target_time ?? 'anytime'}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors cursor-pointer"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer"
           >
             <option value="morning">Morning</option>
             <option value="afternoon">Afternoon</option>
@@ -166,9 +165,9 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
 
         {/* Description */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="edit-description" className="text-sm text-gray-300">
+          <label htmlFor="edit-description" className="text-sm font-bold text-on-background mb-1 block">
             Description{' '}
-            <span className="text-gray-500 text-xs">(optional)</span>
+            <span className="text-on-surface-variant text-xs font-normal">(optional)</span>
           </label>
           <textarea
             id="edit-description"
@@ -178,10 +177,10 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
             placeholder="Add a note about this habit..."
             maxLength={500}
             rows={3}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#FF8243] transition-colors placeholder:text-gray-500 resize-none"
+            className="w-full border border-outline rounded-xl px-4 py-3 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-on-surface-variant/50 resize-none"
           />
           {errors.description && (
-            <p className="text-xs text-red-400">{errors.description}</p>
+            <p className="text-xs text-red-500">{errors.description}</p>
           )}
         </div>
 
@@ -193,26 +192,29 @@ export function HabitEditForm({ habit, onSuccess, onCancel, onUpdate }: HabitEdi
             name="is_active"
             checked={form.is_active ?? true}
             onChange={handleChange}
-            className="w-4 h-4 rounded accent-[#FF8243] cursor-pointer"
+            className="w-4 h-4 rounded accent-primary cursor-pointer"
           />
-          <label htmlFor="edit-is_active" className="text-sm text-gray-300 cursor-pointer">
+          <label htmlFor="edit-is_active" className="text-sm text-on-background cursor-pointer">
             Active habit
           </label>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button
+          <button
             type="button"
-            variant="ghost"
             onClick={onCancel}
-            className="flex-1"
             disabled={loading}
+            className="flex-1 border border-outline text-on-background rounded-xl px-6 py-2.5 font-bold text-sm hover:bg-surface-variant transition-colors cursor-pointer disabled:opacity-60"
           >
             Cancel
-          </Button>
-          <Button type="submit" variant="primary" loading={loading} className="flex-1">
-            Save changes
-          </Button>
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-primary text-white rounded-xl px-6 py-2.5 font-bold text-sm hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-60"
+          >
+            {loading ? 'Saving...' : 'Save changes'}
+          </button>
         </div>
       </form>
     </div>

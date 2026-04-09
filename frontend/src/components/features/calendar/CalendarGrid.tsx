@@ -91,17 +91,16 @@ function CurrentTimeIndicator() {
     >
       {/* Dot on the left */}
       <div
-        className="absolute rounded-full"
+        className="absolute rounded-full bg-tertiary"
         style={{
           width: 10,
           height: 10,
-          background: '#0d9488',
           left: -5,
           top: -4,
         }}
       />
       {/* Horizontal line */}
-      <div className="w-full border-t-2" style={{ borderColor: '#0d9488' }} />
+      <div className="w-full border-t-2 border-tertiary" />
     </div>
   )
 }
@@ -115,26 +114,36 @@ interface DayHeaderProps {
   showAdd: boolean
 }
 
-function DayHeader({ name: _name, label, date, isToday, onAddEvent, showAdd }: DayHeaderProps) {
+function DayHeader({ name, label: _label, date, isToday, onAddEvent, showAdd }: DayHeaderProps) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
-      className="flex-1 flex flex-col items-center py-2 gap-0.5 relative border-l border-gray-200 first:border-l-0 select-none"
+      className="flex-1 flex flex-col items-center py-2 gap-0.5 relative border-l border-outline first:border-l-0 select-none"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <span className="text-[11px] font-medium text-gray-500 tracking-wide">{label}</span>
+      <span
+        className={`text-[11px] font-medium tracking-wide ${
+          isToday ? 'text-primary font-bold' : 'text-on-surface-variant'
+        }`}
+      >
+        {name}
+      </span>
       <div
-        className="w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-colors"
-        style={isToday ? { background: '#0d9488', color: '#fff' } : { color: '#374151' }}
+        className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+          isToday ? 'bg-primary text-white' : 'text-on-background'
+        }`}
       >
         {formatDay(date)}
       </div>
+      {isToday && (
+        <div className="w-1.5 h-1.5 bg-primary rounded-full mt-0.5" />
+      )}
       {showAdd && onAddEvent && (hovered || isToday) && (
         <button
           onClick={() => onAddEvent(date)}
           title={`Add event on ${date}`}
-          className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-background transition-colors cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
             <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
@@ -202,9 +211,9 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
   const HOUR_LINES = Array.from({ length: 24 }, (_, i) => i)
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white rounded-lg border border-gray-200">
+    <div className="flex flex-col h-full overflow-hidden bg-surface rounded-2xl border border-outline">
       {/* Day header row */}
-      <div className="flex border-b border-gray-200 bg-white z-10 sticky top-0 shrink-0">
+      <div className="flex border-b border-outline bg-surface z-10 sticky top-0 shrink-0">
         {/* Gutter spacer */}
         <div className="shrink-0" style={{ width: 52 }} />
         {days.map((day) => {
@@ -225,9 +234,9 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
 
       {/* All-day strip */}
       {hasAllDay && (
-        <div className="flex border-b border-gray-200 bg-gray-50 shrink-0" style={{ minHeight: 32 }}>
+        <div className="flex border-b border-outline bg-surface-variant shrink-0" style={{ minHeight: 32 }}>
           <div
-            className="shrink-0 flex items-center justify-end pr-2 text-[10px] text-gray-400 font-medium"
+            className="shrink-0 flex items-center justify-end pr-2 text-[10px] text-on-surface-variant font-medium"
             style={{ width: 52 }}
           >
             all-day
@@ -235,7 +244,7 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
           {days.map((day) => {
             const dayAllDay = allDayByDate[day.date] ?? []
             return (
-              <div key={day.date} className="flex-1 border-l border-gray-200 px-1 py-0.5 min-h-[28px]">
+              <div key={day.date} className="flex-1 border-l border-outline px-1 py-0.5 min-h-[28px]">
                 {dayAllDay.map((event) => (
                   <CalendarEventCard
                     key={event.id}
@@ -262,7 +271,7 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
             {HOUR_LABELS.map((h) => (
               <div
                 key={h}
-                className="absolute right-2 text-[11px] text-gray-400 select-none -translate-y-1/2"
+                className="absolute right-2 text-[11px] text-on-surface-variant select-none -translate-y-1/2"
                 style={{ top: h * HOUR_HEIGHT }}
               >
                 {formatHour(h)}
@@ -279,7 +288,7 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
             return (
               <div
                 key={day.date}
-                className={`flex-1 relative border-l border-gray-200 transition-colors ${isDragOver ? 'bg-teal-50/40' : ''}`}
+                className={`flex-1 relative border-l border-outline transition-colors ${isDragOver ? 'bg-tertiary/5' : ''}`}
                 onDragOver={(e) => { e.preventDefault(); setDragOverDate(day.date) }}
                 onDragLeave={() => setDragOverDate(null)}
                 onDrop={(e) => {
@@ -294,7 +303,7 @@ export function CalendarGrid({ events, weekStartDate, onDeleteEvent, onAddEvent,
                 {HOUR_LINES.map((h) => (
                   <div
                     key={h}
-                    className="absolute left-0 right-0 border-t border-gray-100"
+                    className="absolute left-0 right-0 border-t border-outline/30"
                     style={{ top: h * HOUR_HEIGHT }}
                   />
                 ))}

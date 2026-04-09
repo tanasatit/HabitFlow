@@ -4,10 +4,14 @@ import { useEffect, useState, useCallback } from 'react'
 import { useCalendar } from '@/lib/hooks/useCalendar'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useGoogleCalendar } from '@/lib/hooks/useGoogleCalendar'
+import { useToast } from '@/lib/hooks/useToast'
 import { CalendarGrid } from '@/components/features/calendar/CalendarGrid'
 import { CreateEventModal } from '@/components/features/calendar/CreateEventModal'
 import { EditEventModal } from '@/components/features/calendar/EditEventModal'
+import { CalendarStatsRow } from '@/components/features/calendar/CalendarStatsRow'
+import { AddEventFAB } from '@/components/features/calendar/AddEventFAB'
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt'
+import { CalendarSkeleton } from '@/components/ui/Skeleton'
 import type { ICalendarEvent } from '@/types/calendar'
 
 /** Format a Date as YYYY-MM-DD using LOCAL timezone (not UTC). */
@@ -15,10 +19,12 @@ function toLocalDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-/** Returns a week-start date such that today lands in the middle (4th of 7 columns). */
-function getCenteredWeekStart(): string {
+/** Returns the Monday of the current week (ISO week, Mon=start). */
+function getMondayWeekStart(): string {
   const d = new Date()
-  d.setDate(d.getDate() - 3)
+  const day = d.getDay() // 0=Sun, 1=Mon...
+  const diff = day === 0 ? -6 : 1 - day // adjust to Monday
+  d.setDate(d.getDate() + diff)
   return toLocalDateStr(d)
 }
 
@@ -40,6 +46,7 @@ export default function CalendarPage() {
   const { user } = useAuth()
   const { events, loading, fetchEvents, createEvent, deleteEvent, updateEvent } = useCalendar()
   const { connected: googleConnected } = useGoogleCalendar()
+  const { showToast } = useToast()
   const [weekStart, setWeekStart] = useState('')
   const [addEventDate, setAddEventDate] = useState<string | null>(null)
   const [editingEvent, setEditingEvent] = useState<ICalendarEvent | null>(null)
@@ -47,7 +54,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     setMounted(true)
-    setWeekStart(getCenteredWeekStart())
+    setWeekStart(getMondayWeekStart())
   }, [])
 
   // Default to true while mounting so server renders the full UI (avoids hydration mismatch)
@@ -60,28 +67,38 @@ export default function CalendarPage() {
 
   const prevWeek = useCallback(() => setWeekStart(w => addDays(w, -7)), [])
   const nextWeek = useCallback(() => setWeekStart(w => addDays(w, 7)), [])
-  const goToday = useCallback(() => setWeekStart(getCenteredWeekStart()), [])
+  const goToday = useCallback(() => setWeekStart(getMondayWeekStart()), [])
 
-  const isCurrentWeek = mounted && weekStart !== '' && weekStart === getCenteredWeekStart()
+  const isCurrentWeek = mounted && weekStart !== '' && weekStart === getMondayWeekStart()
+
+  async function handleDeleteEvent(id: string) {
+    try {
+      await deleteEvent(id)
+      showToast('Event removed.', 'success')
+      fetchEvents(weekStart, addDays(weekStart, 6))
+    } catch {
+      showToast('Could not delete event.', 'error')
+    }
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] px-6 py-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Weekly Calendar</h1>
-          <p className="text-sm text-gray-500">Your AI-generated habit schedule</p>
+          <h1 className="text-3xl font-headline font-extrabold italic text-on-background">Weekly Momentum.</h1>
+          <p className="text-sm text-on-surface-variant">Your AI-generated habit schedule</p>
         </div>
         {isPremium && (
           <div className="flex items-center gap-2">
             {mounted && googleConnected && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-xs font-medium text-blue-600">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary/10 border border-tertiary/20 text-xs font-medium text-tertiary">
+                <div className="w-1.5 h-1.5 rounded-full bg-tertiary" />
                 Google Calendar
               </div>
             )}
             <button
               onClick={prevWeek}
-              className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-colors cursor-pointer"
               title="Previous week"
             >
               ‹‹
@@ -89,16 +106,16 @@ export default function CalendarPage() {
             <button
               onClick={goToday}
               disabled={isCurrentWeek}
-              className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 transition-colors"
+              className="px-3 py-1.5 text-sm rounded-lg border border-outline hover:bg-surface-variant disabled:opacity-40 disabled:cursor-not-allowed text-on-background transition-colors cursor-pointer"
             >
               Today
             </button>
-            <span className="text-sm font-medium text-gray-700 min-w-[180px] text-center">
+            <span className="text-sm font-medium text-on-background min-w-[180px] text-center">
               {weekStart !== '' ? formatWeekLabel(weekStart) : ''}
             </span>
             <button
               onClick={nextWeek}
-              className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-colors cursor-pointer"
               title="Next week"
             >
               ››
@@ -110,36 +127,54 @@ export default function CalendarPage() {
       {!isPremium ? (
         <UpgradePrompt feature="Calendar" />
       ) : !mounted || weekStart === '' || loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
-        </div>
+        <CalendarSkeleton />
       ) : (
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <CalendarGrid
-            events={events}
-            weekStartDate={weekStart}
-            onDeleteEvent={async (id) => { await deleteEvent(id) }}
-            onAddEvent={(date) => setAddEventDate(date)}
-            onUpdateEvent={async (id, date) => { await updateEvent(id, { scheduled_date: date }) }}
-            onEditEvent={(event) => setEditingEvent(event)}
-          />
-        </div>
+        <>
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <CalendarGrid
+              events={events}
+              weekStartDate={weekStart}
+              onDeleteEvent={handleDeleteEvent}
+              onAddEvent={(date) => setAddEventDate(date)}
+              onUpdateEvent={async (id, date) => { await updateEvent(id, { scheduled_date: date }) }}
+              onEditEvent={(event) => setEditingEvent(event)}
+            />
+          </div>
+          <CalendarStatsRow events={events} />
+        </>
+      )}
+
+      {isPremium && mounted && weekStart !== '' && !loading && (
+        <AddEventFAB onClick={() => setAddEventDate(weekStart)} />
       )}
 
       <CreateEventModal
         isOpen={!!addEventDate}
         defaultDate={addEventDate ?? weekStart}
         onClose={() => setAddEventDate(null)}
-        onCreated={() => { setAddEventDate(null); fetchEvents(weekStart, addDays(weekStart, 6)) }}
-        createEvent={createEvent}
+        onCreated={() => {
+          setAddEventDate(null)
+          fetchEvents(weekStart, addDays(weekStart, 6))
+          showToast('Event saved.', 'success')
+        }}
+        createEvent={async (input) => {
+          const result = await createEvent(input)
+          if (result?.error) {
+            showToast('Could not save event.', 'error')
+          }
+          return result
+        }}
       />
 
       <EditEventModal
         event={editingEvent}
         onClose={() => setEditingEvent(null)}
-        onSaved={() => fetchEvents(weekStart, addDays(weekStart, 6))}
+        onSaved={() => {
+          fetchEvents(weekStart, addDays(weekStart, 6))
+          showToast('Event saved.', 'success')
+        }}
         updateEvent={(id, input) => updateEvent(id, input)}
-        onDelete={async (id) => { await deleteEvent(id); fetchEvents(weekStart, addDays(weekStart, 6)) }}
+        onDelete={handleDeleteEvent}
       />
     </div>
   )

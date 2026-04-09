@@ -169,36 +169,89 @@
 
 ---
 
-## Phase 8 — Google OAuth (Sign in with Google)
+## Phase 8 — Google OAuth (Sign in with Google) ✅
 **Goal:** Users can register and log in using their Google account.
 
 ### Backend
-- [ ] Add `google_id` column to `users` table (nullable, unique index)
-- [ ] Register a separate OAuth2 client in Google Cloud Console for identity (not calendar scope — use `openid email profile`)
-- [ ] `GET /auth/google` — initiate Google sign-in (state token, redirect to Google)
-- [ ] `GET /auth/google/callback` — exchange code, fetch user profile, upsert user by `google_id` or email, issue JWT
-- [ ] Handle both new user (auto-register with free tier) and existing user (link accounts by email)
-- [ ] No password required for Google-linked accounts; block local login if no password hash
+- [x] `google_id` (nullable, uniqueIndex) + `avatar_url` columns added to `users` table
+- [x] `PasswordHash` made nullable to support Google-only accounts
+- [x] Shared OAuth client: `GOOGLE_IDENTITY_CLIENT_ID` / `GOOGLE_IDENTITY_CLIENT_SECRET` used for both calendar (Phase 7) and identity (Phase 8)
+- [x] `internal/domain/googleauth/` package: service (state CSRF, OAuth2 flow, UpsertUser, cleanup goroutine with stop channel) + handler
+- [x] `GET /auth/google` — generates state token, redirects to Google consent
+- [x] `GET /auth/google/callback` — validates state, exchanges code, fetches profile, upserts user, sets JWT cookie, redirects to `/dashboard`
+- [x] `FindByGoogleID` + `UpdateGoogleID` + `UpdateNameAndAvatar` added to user repository
+- [x] Account linking: existing user by email gets `google_id` set; returning Google user updates name/avatar
+- [x] New user: auto-created with free tier, no password
+- [x] `ErrGoogleOnlyAccount` blocks local login for password-less accounts (HTTP 400)
+- [x] Routes registered in `main.go` under public `auth` group (no auth middleware)
+- [x] `googleAuthSvc.Stop()` called on graceful shutdown
 
 ### Frontend
-- [ ] "Continue with Google" button on login and register pages
-- [ ] Handle redirect to `/auth/google` (plain browser navigation, no auth header needed)
-- [ ] On callback redirect back to `/dashboard` with JWT set in cookie
-- [ ] Show Google avatar/email in account settings for linked accounts
+- [x] `GoogleSignInButton` component in `components/features/auth/` (Google "G" SVG, full browser nav)
+- [x] "Continue with Google" button on login page + OAuth `?error=` query param handling
+- [x] "Sign up with Google" button on register page
+- [x] OAuth callback handled entirely by backend — no frontend callback page
+- [x] Settings page shows Google-linked status: avatar, email, Connected badge, or Link button
+- [x] `IUser` updated with optional `google_id?` and `avatar_url?`
 
 ---
 
-## Phase 9 — Enhance UX/UI
+## Phase 9 — Enhance UX/UI ✅
 **Goal:** Polish the user experience and visual design across all pages.
 
-- [ ] Consistent loading skeletons on all data-fetching pages (habits, dashboard, calendar, ai-coach)
-- [ ] Empty states with illustrations on habits list, calendar, and ai-coach (no habits yet, no events, no chat)
-- [ ] Toast notifications for success/error actions (habit created, event saved, login failed, etc.)
-- [ ] Smooth page transitions using Framer Motion `AnimatePresence`
-- [ ] Mobile-responsive layout for habits, dashboard, and calendar pages
-- [ ] Accessible focus states and keyboard navigation on forms and buttons
-- [ ] Dark mode support (Tailwind `dark:` classes, persisted in localStorage)
-- [ ] Micro-interactions: button press feedback, card hover states, streak flame pulse
+### Design System
+- [x] Tropical Punch color tokens in `globals.css` @theme (primary #FF8243, tertiary #069494, background #FFF9F5, etc.)
+- [x] Plus Jakarta Sans (headlines) + Be Vietnam Pro (body) via next/font/google
+- [x] Material Symbols Outlined loaded via `<link>` in root layout
+
+### Shared Primitives
+- [x] `Skeleton.tsx` — animate-pulse loading primitive
+- [x] `EmptyState.tsx` — centered icon + title + description + CTA
+- [x] `UpgradePromo.tsx` — sidebar promo card
+- [x] `Toast.tsx` + `useToast.tsx` — in-house Framer Motion toast system, auto-dismiss 4s
+- [x] `PageTransition.tsx` — Framer Motion AnimatePresence fade+slide on pathname
+- [x] `MobileBottomNav.tsx` — 4-item mobile bottom nav
+
+### App Shell
+- [x] `(app)/layout.tsx` — warm sidebar `w-72`, sticky, hidden on mobile
+- [x] `AppNav.tsx` — pill-shaped active nav (bg-primary text-white rounded-full)
+
+### Dashboard
+- [x] Hero greeting ("Welcome back, Name!")
+- [x] StreakCard + ProgressRingsCard (SVG circles, teal + primary)
+- [x] TodayRitualsList with icon squares, checkboxes, completion animation
+- [x] AIInsightCard (bg-accent yellow callout)
+
+### Habits
+- [x] "Your Oasis." headline, bento grid (3-col desktop)
+- [x] HabitBentoCard with progress bar, category pill, streak number
+- [x] CreateRitualCard (dashed border add card)
+- [x] HabitAIInsightCard (bg-tertiary teal)
+
+### Calendar
+- [x] "Weekly Momentum." italic headline
+- [x] Source-based event colors (ai=teal, manual=primary, google=secondary)
+- [x] CalendarStatsRow with left accent bars
+- [x] AddEventFAB (fixed bottom-right circular)
+
+### AI Coach
+- [x] Split layout with SessionsSidebar (lg+)
+- [x] ChatBubble restyle (tl-none/tr-none, teal avatar)
+- [x] ChatInput restyle (rounded-2xl, mic placeholder, orange SEND)
+- [x] TypingIndicator (3 staggered Framer Motion dots)
+- [x] SuggestionChips (scrollable pills when no messages)
+
+### Polish
+- [x] Toast notifications wired: habits CRUD, calendar events, login error, Google Calendar
+- [x] Skeleton loading on all data-fetching pages
+- [x] Empty states on habits, calendar, ai-coach
+- [x] Habit completion animation (scale flash + bg-secondary/20)
+- [x] Streak flame pulse (looping scale animation)
+- [x] Auth pages (login/register) restyled with new palette
+- [x] Settings + admin pages restyled with new palette
+- [x] Mobile responsive: sidebar hidden, MobileBottomNav visible
+- [x] Focus states: `*:focus-visible` outline-primary globally
+- [ ] Dark mode — deferred to future phase
 
 ---
 

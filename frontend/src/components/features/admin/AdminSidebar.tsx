@@ -40,8 +40,8 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col gap-4 p-5 shrink-0">
-      <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 px-2">
+    <aside className="w-56 bg-surface border-r border-outline flex flex-col gap-4 p-5 shrink-0">
+      <div className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant px-2">
         Admin Panel
       </div>
 
@@ -52,10 +52,10 @@ export function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243] ${
+              className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isActive
-                  ? 'bg-[#FF8243]/15 text-[#FF8243] font-medium'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-primary/15 text-primary font-medium'
+                  : 'text-on-surface-variant hover:text-on-background hover:bg-surface-variant'
               }`}
               aria-current={isActive ? 'page' : undefined}
             >
@@ -69,7 +69,7 @@ export function AdminSidebar() {
       <div className="mt-auto">
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243]"
+          className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-on-surface-variant hover:text-on-background hover:bg-surface-variant transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

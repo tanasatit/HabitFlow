@@ -31,28 +31,28 @@ Phase 7 added Google Calendar OAuth using `https://www.googleapis.com/auth/calen
 
 | # | Task | Status |
 |---|---|---|
-| B1 | Add `google_id` column (nullable, unique index) to `users` table via GORM model change | |
-| B2 | Add `GOOGLE_IDENTITY_CLIENT_ID`, `GOOGLE_IDENTITY_CLIENT_SECRET`, `GOOGLE_IDENTITY_REDIRECT_URL` to config | |
-| B3 | Create `internal/domain/googleauth/` package (service, handler) | |
-| B4 | Implement `GET /auth/google` -- generate state token, redirect to Google consent | |
-| B5 | Implement `GET /auth/google/callback` -- exchange code, fetch profile, upsert user, issue JWT, redirect to frontend | |
-| B6 | Add `FindByGoogleID(googleID string)` to user repository | |
-| B7 | Add `UpdateGoogleID(userID uuid.UUID, googleID string)` to user repository | |
-| B8 | Handle account linking: existing user by email gets `google_id` set | |
-| B9 | Handle new user registration: auto-create with free tier, no password | |
-| B10 | Block local login for password-less Google accounts (return clear error) | |
-| B11 | Register routes in `main.go` | |
+| B1 | Add `google_id` column (nullable, unique index) to `users` table via GORM model change | done |
+| B2 | Add `GOOGLE_IDENTITY_CLIENT_ID`, `GOOGLE_IDENTITY_CLIENT_SECRET`, `GOOGLE_IDENTITY_REDIRECT_URL` to config | done |
+| B3 | Create `internal/domain/googleauth/` package (service, handler) | done |
+| B4 | Implement `GET /auth/google` -- generate state token, redirect to Google consent | done |
+| B5 | Implement `GET /auth/google/callback` -- exchange code, fetch profile, upsert user, issue JWT, redirect to frontend | done |
+| B6 | Add `FindByGoogleID(googleID string)` to user repository | done |
+| B7 | Add `UpdateGoogleID(userID uuid.UUID, googleID string)` to user repository | done |
+| B8 | Handle account linking: existing user by email gets `google_id` set | done |
+| B9 | Handle new user registration: auto-create with free tier, no password | done |
+| B10 | Block local login for password-less Google accounts (return clear error) | done |
+| B11 | Register routes in `main.go` | done |
 
 ### Frontend
 
 | # | Task | Status |
 |---|---|---|
-| F1 | Add "Continue with Google" button to login page | |
-| F2 | Add "Continue with Google" button to register page | |
-| F3 | Create `GoogleSignInButton` reusable component | |
-| F4 | Handle OAuth callback redirect -- frontend receives JWT cookie from backend redirect, loads `/dashboard` | |
-| F5 | Show Google-linked status in settings page (avatar URL, Google email) | |
-| F6 | Update `IUser` type to include optional `google_id` and `avatar_url` fields | |
+| F1 | Add "Continue with Google" button to login page | done |
+| F2 | Add "Continue with Google" button to register page | done |
+| F3 | Create `GoogleSignInButton` reusable component | done |
+| F4 | Handle OAuth callback redirect -- frontend receives JWT cookie from backend redirect, loads `/dashboard` | done |
+| F5 | Show Google-linked status in settings page (avatar URL, Google email) | done |
+| F6 | Update `IUser` type to include optional `google_id` and `avatar_url` fields | done |
 
 ---
 

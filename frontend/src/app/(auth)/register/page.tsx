@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
 import { GoogleSignInButton } from '@/components/features/auth/GoogleSignInButton'
 
 export default function RegisterPage() {
@@ -33,10 +32,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-gray-900 shadow-xl">
-        <h1 className="text-3xl font-bold text-white mb-2">Get started</h1>
-        <p className="text-gray-400 mb-8">Create your HabitFlow AI account</p>
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="bg-surface border border-outline rounded-2xl p-10 w-full max-w-md shadow-sm">
+        <div className="mb-6">
+          <h1 className="font-headline italic font-black text-3xl text-primary mb-1">HabitFlow AI</h1>
+          <p className="text-on-surface-variant text-sm">Create your account</p>
+        </div>
+
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -65,28 +72,30 @@ export default function RegisterPage() {
             required
           />
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
-
-          <Button type="submit" loading={loading}>
-            Create Account
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 text-sm transition-all cursor-pointer disabled:opacity-60 mt-2"
+          >
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
         </form>
 
         {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-gray-700" />
+            <div className="w-full border-t border-outline" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="px-3 bg-gray-900 text-gray-500 tracking-wider">or</span>
+            <span className="px-3 bg-surface text-on-surface-variant tracking-wider">or</span>
           </div>
         </div>
 
         <GoogleSignInButton label="Sign up with Google" />
 
-        <p className="mt-6 text-center text-gray-400 text-sm">
+        <p className="mt-6 text-center text-on-surface-variant text-sm">
           Already have an account?{' '}
-          <a href="/login" className="text-[#FF6B6B] hover:underline">
+          <a href="/login" className="text-primary font-bold hover:underline">
             Sign in
           </a>
         </p>

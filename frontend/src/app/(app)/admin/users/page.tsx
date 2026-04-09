@@ -9,19 +9,19 @@ import { UserTable } from '@/components/features/admin/UserTable'
 
 function TableSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-800 overflow-hidden" aria-hidden="true">
-      <div className="bg-gray-900/50 border-b border-gray-800 px-4 py-3 flex gap-4">
+    <div className="bg-surface border border-outline rounded-2xl overflow-hidden" aria-hidden="true">
+      <div className="bg-surface-variant border-b border-outline px-4 py-3 flex gap-4">
         {[120, 180, 80, 80, 80, 100].map((w, i) => (
-          <div key={i} className="h-3 rounded bg-gray-800 animate-pulse" style={{ width: w }} />
+          <div key={i} className="h-3 rounded bg-outline animate-pulse" style={{ width: w }} />
         ))}
       </div>
       {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="bg-gray-900 border-b border-gray-800 last:border-b-0 px-4 py-4">
+        <div key={i} className="bg-surface border-b border-outline last:border-b-0 px-4 py-4">
           <div className="flex gap-4 items-center">
             {[120, 180, 80, 80, 80, 100].map((w, j) => (
               <div
                 key={j}
-                className="h-3 rounded bg-gray-800 animate-pulse"
+                className="h-3 rounded bg-outline animate-pulse"
                 style={{ width: w }}
               />
             ))}
@@ -98,8 +98,8 @@ export default function AdminUsersPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-2xl font-bold text-white">Users</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="font-headline font-bold text-2xl text-on-background">Users</h1>
+        <p className="text-sm text-on-surface-variant mt-1">
           {loading ? 'Loading...' : `${total.toLocaleString()} total users`}
         </p>
       </motion.header>
@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none"
             aria-hidden="true"
           >
             <path
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
             placeholder="Search by name or email…"
             value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-[#FF8243] transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-outline text-on-background text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             aria-label="Search users"
           />
         </div>
@@ -134,14 +134,14 @@ export default function AdminUsersPage() {
       {/* Error states */}
       {(error || deleteError) && (
         <div
-          className="flex items-center justify-between gap-4 p-4 rounded-xl bg-red-900/30 border border-red-800 text-sm text-red-300"
+          className="flex items-center justify-between gap-4 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700"
           role="alert"
         >
           <span>{error ?? deleteError}</span>
           {error && (
             <button
               onClick={refetch}
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-800 hover:bg-red-700 text-white font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+              className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
             >
               Retry
             </button>
@@ -168,19 +168,19 @@ export default function AdminUsersPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243]"
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-surface border border-outline hover:bg-surface-variant text-on-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Previous page"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-400">
-            Page <span className="text-white font-medium">{page}</span> of{' '}
-            <span className="text-white font-medium">{totalPages}</span>
+          <span className="text-sm text-on-surface-variant">
+            Page <span className="text-on-background font-bold">{page}</span> of{' '}
+            <span className="text-on-background font-bold">{totalPages}</span>
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243]"
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-surface border border-outline hover:bg-surface-variant text-on-background disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Next page"
           >
             Next

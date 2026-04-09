@@ -25,28 +25,31 @@ export function ChatInput({ onSend, disabled }: Props) {
   }
 
   return (
-    <div className="border-t border-gray-200 p-4 bg-white">
-      <div className="flex gap-3 items-end">
+    <div className="border-t border-outline px-4 py-3 bg-background">
+      <div className="bg-surface border border-outline rounded-2xl flex items-center gap-2 px-4 py-2">
+        {/* Mic placeholder — no functionality */}
+        <span className="material-symbols-outlined text-on-background/30 text-[20px] flex-shrink-0" aria-hidden="true">mic</span>
+
         <textarea
           value={value}
           onChange={e => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder="Describe your week or ask for a habit plan..."
-          rows={2}
-          className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+          rows={1}
+          className="flex-1 bg-transparent outline-none text-sm font-sans text-on-background placeholder-on-surface-variant resize-none disabled:opacity-50 disabled:cursor-not-allowed leading-relaxed py-1.5"
         />
+
         <button
           onClick={handleSend}
           disabled={disabled || !value.trim()}
-          className="flex-shrink-0 w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex-shrink-0 bg-primary text-white font-headline font-bold uppercase tracking-widest text-xs px-6 py-2.5 rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label="Send message"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-          </svg>
+          Send
         </button>
       </div>
-      <p className="text-xs text-gray-400 mt-2 px-1">Enter to send · Shift+Enter for new line</p>
+      <p className="text-xs text-on-surface-variant mt-2 px-1">Enter to send &middot; Shift+Enter for new line</p>
     </div>
   )
 }

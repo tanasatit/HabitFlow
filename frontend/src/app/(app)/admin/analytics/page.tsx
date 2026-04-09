@@ -16,14 +16,14 @@ export default function AdminAnalyticsPage() {
         className="flex items-start justify-between gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-white">Platform Analytics</h1>
-          <p className="text-sm text-gray-400 mt-1">Live overview of HabitFlow user activity</p>
+          <h1 className="font-headline font-bold text-2xl text-on-background">Platform Analytics</h1>
+          <p className="text-sm text-on-surface-variant mt-1">Live overview of HabitFlow user activity</p>
         </div>
 
         <button
           onClick={refetch}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8243] shrink-0"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-surface-variant hover:bg-outline text-on-surface-variant disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
           aria-label="Refresh analytics"
         >
           <svg
@@ -46,13 +46,13 @@ export default function AdminAnalyticsPage() {
       {/* Error state */}
       {error && (
         <div
-          className="flex items-center justify-between gap-4 p-4 rounded-xl bg-red-900/30 border border-red-800 text-sm text-red-300"
+          className="flex items-center justify-between gap-4 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700"
           role="alert"
         >
           <span>Could not load analytics: {error}</span>
           <button
             onClick={refetch}
-            className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-800 hover:bg-red-700 text-white font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           >
             Retry
           </button>
@@ -72,15 +72,15 @@ export default function AdminAnalyticsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="p-5 rounded-xl bg-gray-900 border border-gray-800"
+          className="p-5 rounded-2xl bg-surface border border-outline"
           aria-label="User distribution breakdown"
         >
-          <h2 className="text-sm font-semibold text-gray-300 mb-4">User Distribution</h2>
+          <h2 className="text-sm font-semibold text-on-background mb-4">User Distribution</h2>
 
           <div className="space-y-3">
             {/* Free bar */}
             <div>
-              <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
+              <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1.5">
                 <span>Free</span>
                 <span>
                   {analytics.free_users.toLocaleString()} (
@@ -90,7 +90,7 @@ export default function AdminAnalyticsPage() {
                   %)
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-2 rounded-full bg-surface-variant overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
@@ -100,14 +100,14 @@ export default function AdminAnalyticsPage() {
                         : '0%',
                   }}
                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-                  className="h-full rounded-full bg-gray-500"
+                  className="h-full rounded-full bg-outline"
                 />
               </div>
             </div>
 
             {/* Premium bar */}
             <div>
-              <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
+              <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1.5">
                 <span>Premium</span>
                 <span>
                   {analytics.premium_users.toLocaleString()} (
@@ -117,7 +117,7 @@ export default function AdminAnalyticsPage() {
                   %)
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-2 rounded-full bg-surface-variant overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
@@ -127,14 +127,14 @@ export default function AdminAnalyticsPage() {
                         : '0%',
                   }}
                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-                  className="h-full rounded-full bg-[#069494]"
+                  className="h-full rounded-full bg-tertiary"
                 />
               </div>
             </div>
 
             {/* Admin bar */}
             <div>
-              <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
+              <div className="flex items-center justify-between text-xs text-on-surface-variant mb-1.5">
                 <span>Admin</span>
                 <span>
                   {analytics.admin_users.toLocaleString()} (
@@ -144,7 +144,7 @@ export default function AdminAnalyticsPage() {
                   %)
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+              <div className="h-2 rounded-full bg-surface-variant overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
@@ -154,7 +154,7 @@ export default function AdminAnalyticsPage() {
                         : '0%',
                   }}
                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.5 }}
-                  className="h-full rounded-full bg-[#FF8243]"
+                  className="h-full rounded-full bg-primary"
                 />
               </div>
             </div>

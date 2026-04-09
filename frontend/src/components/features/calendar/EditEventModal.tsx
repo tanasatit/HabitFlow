@@ -95,24 +95,24 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.93 }}
             transition={{ duration: 0.18 }}
-            className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+            className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-md border border-outline"
             role="dialog"
             aria-modal="true"
             aria-labelledby="edit-event-title"
           >
-            <h2 id="edit-event-title" className="text-lg font-bold text-gray-900 mb-5">
+            <h2 id="edit-event-title" className="font-headline font-bold text-xl text-on-background mb-5">
               Edit Event
             </h2>
 
             {error && (
-              <p className="mb-4 text-sm text-red-500 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+              <p className="mb-4 text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-2">
                 {error}
               </p>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="edit-title" className="block text-sm font-bold text-on-background mb-1">
                   Title
                 </label>
                 <input
@@ -124,13 +124,13 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                   maxLength={100}
                   required
                   autoFocus
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full border border-outline rounded-xl px-4 py-2.5 text-sm bg-surface text-on-background placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="edit-date" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="edit-date" className="block text-sm font-bold text-on-background mb-1">
                     Date
                   </label>
                   <input
@@ -140,11 +140,11 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                     value={form.scheduled_date}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full border border-outline rounded-xl px-4 py-2.5 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                   />
                 </div>
                 <div>
-                  <label htmlFor="edit-time" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="edit-time" className="block text-sm font-bold text-on-background mb-1">
                     Start time
                   </label>
                   <input
@@ -153,13 +153,13 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                     type="time"
                     value={form.start_time}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full border border-outline rounded-xl px-4 py-2.5 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="edit-duration" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="edit-duration" className="block text-sm font-bold text-on-background mb-1">
                   Duration (minutes)
                 </label>
                 <input
@@ -170,13 +170,13 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                   max={480}
                   value={form.duration_minutes}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full border border-outline rounded-xl px-4 py-2.5 text-sm bg-surface text-on-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Description <span className="text-gray-400 font-normal">(optional)</span>
+                <label htmlFor="edit-description" className="block text-sm font-bold text-on-background mb-1">
+                  Description <span className="text-on-surface-variant font-normal">(optional)</span>
                 </label>
                 <textarea
                   id="edit-description"
@@ -186,12 +186,12 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                   placeholder="Add a note..."
                   rows={2}
                   maxLength={500}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                  className="w-full border border-outline rounded-xl px-4 py-2.5 text-sm bg-surface text-on-background placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-on-background mb-2">
                   Color
                 </label>
                 <div className="flex gap-2 flex-wrap">
@@ -227,14 +227,14 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
                   type="button"
                   onClick={onClose}
                   disabled={loading}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium text-sm transition-colors cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 rounded-xl border border-outline hover:bg-surface-variant text-on-background font-bold text-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {loading ? 'Saving...' : 'Save'}
                 </button>

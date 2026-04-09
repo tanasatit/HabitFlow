@@ -40,10 +40,10 @@ function StatCard({ label, value, accentColor, icon, description }: StatCardProp
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="rounded-xl bg-gray-900 border border-gray-800 p-6 flex flex-col gap-4"
+      className="rounded-xl bg-surface border border-outline p-6 flex flex-col gap-4"
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-400 font-medium">{label}</span>
+        <span className="text-sm text-on-surface-variant font-medium">{label}</span>
         <div
           className="w-9 h-9 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: `${accentColor}20` }}
@@ -60,7 +60,7 @@ function StatCard({ label, value, accentColor, icon, description }: StatCardProp
         >
           <AnimatedNumber value={value} />
         </p>
-        {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+        {description && <p className="text-xs text-on-surface-variant mt-1">{description}</p>}
       </div>
     </motion.div>
   )
@@ -157,7 +157,7 @@ export function AnalyticsCardsSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="rounded-xl bg-gray-900 border border-gray-800 p-6 h-36 animate-pulse"
+          className="rounded-xl bg-surface border border-outline p-6 h-36 animate-pulse"
         />
       ))}
     </div>

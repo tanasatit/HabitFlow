@@ -68,8 +68,8 @@ habitflow/
 
 > **Update this section every time you start a new phase.**
 
-- Current Phase: `Phase 7 — Google Calendar Sync (MCP)` ✅ complete
-- Current Task: `Phase 8 — Google OAuth (Sign in with Google)`
+- Current Phase: `Phase 9 — Enhance UX/UI` ✅ complete
+- Current Task: `Phase 10 — Testing`
 - Blocked By: `nothing`
 
 ---
