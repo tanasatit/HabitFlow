@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Brand palette */
+  --color-primary: #FF8243;
+  --color-secondary: #FFC0CB;
+  --color-tertiary: #069494;
+  --color-accent: #FCE883;
+
+  /* Surfaces */
+  --color-background: #FFF9F5;
+  --color-surface: #ffffff;
+  --color-surface-variant: #f4f1ef;
+
+  /* Text */
+  --color-on-background: #302e2c;
+  --color-on-surface-variant: #5e5b58;
+
+  /* Structural */
+  --color-outline: #e0dad6;
+
+  /* Fonts (wired to next/font CSS variables) */
+  --font-sans: var(--font-be-vietnam-pro);
+  --font-headline: var(--font-plus-jakarta-sans);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-sans), -apple-system, system-ui, sans-serif;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
