@@ -8,7 +8,7 @@ import (
 )
 
 type Habit struct {
-	ID          uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID          uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID      uuid.UUID      `gorm:"type:uuid;not null;index"                       json:"user_id"`
 	Name        string         `gorm:"not null"                                       json:"name"`
 	Category    string         `gorm:"default:''"                                     json:"category"`
@@ -22,13 +22,30 @@ type Habit struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"                                          json:"-"`
 }
 
+// BeforeCreate generates a UUID if one is not already set.
+// This ensures the model works with SQLite (which lacks gen_random_uuid()) as well as Postgres.
+func (h *Habit) BeforeCreate(tx *gorm.DB) error {
+	if h.ID == (uuid.UUID{}) {
+		h.ID = uuid.New()
+	}
+	return nil
+}
+
 type HabitLog struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	HabitID     uuid.UUID `gorm:"type:uuid;not null;index"                       json:"habit_id"`
 	UserID      uuid.UUID `gorm:"type:uuid;not null;index"                       json:"user_id"`
 	CompletedAt time.Time `gorm:"not null"                                       json:"completed_at"`
 	Notes       string    `json:"notes"`
 	CreatedAt   time.Time `json:"created_at"`
+}
+
+// BeforeCreate generates a UUID if one is not already set.
+func (l *HabitLog) BeforeCreate(tx *gorm.DB) error {
+	if l.ID == (uuid.UUID{}) {
+		l.ID = uuid.New()
+	}
+	return nil
 }
 
 // CreateInput is the request body for creating a habit.

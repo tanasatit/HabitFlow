@@ -16,7 +16,7 @@ const (
 )
 
 type User struct {
-	ID           uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID           uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
 	Email        string         `gorm:"uniqueIndex;not null"                           json:"email"`
 	PasswordHash string         `gorm:""                                               json:"-"`
 	Name         string         `gorm:"not null"                                       json:"name"`
@@ -28,11 +28,28 @@ type User struct {
 	DeletedAt    gorm.DeletedAt `gorm:"index"                                          json:"-"`
 }
 
+// BeforeCreate generates a UUID if one is not already set.
+// This ensures the model works with SQLite (which lacks gen_random_uuid()) as well as Postgres.
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+	if u.ID == (uuid.UUID{}) {
+		u.ID = uuid.New()
+	}
+	return nil
+}
+
 type Subscription struct {
-	ID        uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID        uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID    uuid.UUID  `gorm:"type:uuid;not null;uniqueIndex"                 json:"user_id"`
 	Plan      string     `gorm:"type:varchar(20);default:'free'"                json:"plan"`
 	ExpiresAt *time.Time `json:"expires_at"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
+}
+
+// BeforeCreate generates a UUID if one is not already set.
+func (s *Subscription) BeforeCreate(tx *gorm.DB) error {
+	if s.ID == (uuid.UUID{}) {
+		s.ID = uuid.New()
+	}
+	return nil
 }

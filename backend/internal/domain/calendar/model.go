@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type CalendarEvent struct {
-	ID              uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID              uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID          uuid.UUID  `gorm:"type:uuid;not null;index"                       json:"user_id"`
 	HabitID         *uuid.UUID `gorm:"type:uuid;index"                                json:"habit_id"`
 	Title           string     `gorm:"not null"                                       json:"title"`
@@ -21,6 +22,14 @@ type CalendarEvent struct {
 	GoogleEventID   string     `gorm:"index"                                          json:"google_event_id"`
 	CreatedAt       time.Time  `                                                      json:"created_at"`
 	UpdatedAt       time.Time  `                                                      json:"updated_at"`
+}
+
+// BeforeCreate generates a UUID if one is not already set.
+func (e *CalendarEvent) BeforeCreate(tx *gorm.DB) error {
+	if e.ID == (uuid.UUID{}) {
+		e.ID = uuid.New()
+	}
+	return nil
 }
 
 type CreateEventInput struct {

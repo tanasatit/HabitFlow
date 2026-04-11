@@ -120,5 +120,10 @@ export function useAICoach(userId?: string) {
     if (storageKey) localStorage.removeItem(storageKey)
   }, [storageKey])
 
-  return { messages, isStreaming, send, abort, reset, conversationId }
+  const loadMessages = useCallback((msgs: IChatMessage[], convId: string | null) => {
+    setMessages(msgs)
+    setConversationId(convId)
+  }, [])
+
+  return { messages, isStreaming, send, abort, reset, loadMessages, conversationId }
 }

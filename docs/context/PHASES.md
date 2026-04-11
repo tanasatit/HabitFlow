@@ -255,21 +255,21 @@
 
 ---
 
-## Phase 10 — Testing
+## Phase 10 — Testing ✅
 **Goal:** Core flows covered by automated tests; no regressions before pipeline.
 
 ### Backend
-- [ ] Unit tests for habit service (streak calculation, completion logic)
-- [ ] Unit tests for auth service (register, login, JWT issuance)
-- [ ] Integration tests for `/api/v1/health`, `/auth/register`, `/auth/login`, `/habits` CRUD
-- [ ] Table-driven tests for edge cases (duplicate email, invalid habit ID, expired token)
-- [ ] `go test ./...` passing with >70% coverage on service layer
+- [x] Unit tests for habit service (streak calculation, completion logic)
+- [x] Unit tests for auth service (register, login, JWT issuance)
+- [x] Integration tests for `/api/v1/health`, `/auth/register`, `/auth/login`, `/habits` CRUD
+- [x] Table-driven tests for edge cases (duplicate email, invalid habit ID, expired token)
+- [x] `go test ./...` passing with >70% coverage on service layer (habit: 73.4%, user: 75.5%)
 
 ### Frontend
-- [ ] Unit tests for `useHabits`, `useAuth`, `useCalendar` hooks (Jest + React Testing Library)
-- [ ] Component tests for `HabitCard`, `CalendarEventCard`, `ChatInput`
-- [ ] E2E smoke test: register → create habit → log completion → see dashboard streak (Playwright or Cypress)
-- [ ] `npm test` passing with no failures
+- [x] Unit tests for `useHabits`, `useAuth`, `useCalendar` hooks (Jest + React Testing Library)
+- [x] Component tests for `HabitCard`, `CalendarEventCard`, `ChatInput`
+- [x] E2E smoke test: register → create habit → log completion → see dashboard streak (Playwright or Cypress)
+- [x] `npm test` passing with no failures (44 tests)
 
 ---
 
@@ -283,7 +283,6 @@
 - [ ] Update `docker-compose.yml` for production
 - [ ] Set all secrets in GitHub Actions secrets
 - [ ] Verify full pipeline runs end-to-end
-- [ ] Write `docs/devops/pipeline.md`
 
 ---
 

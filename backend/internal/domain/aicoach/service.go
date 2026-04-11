@@ -101,11 +101,14 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 		history = history[len(history)-maxHistoryMessages:]
 	}
 
-	// Build messages for AI
+	// Build messages for AI — skip empty assistant turns (corrupted history)
 	messages := []internalai.Message{
 		{Role: "system", Content: s.buildSystemPrompt(userID)},
 	}
 	for _, h := range history {
+		if h.Content == "" {
+			continue
+		}
 		messages = append(messages, internalai.Message{Role: h.Role, Content: h.Content})
 	}
 	messages = append(messages, internalai.Message{Role: "user", Content: req.Message})
@@ -185,8 +188,10 @@ func (s *Service) Chat(ctx context.Context, userID uuid.UUID, req ChatRequest, s
 		}
 	}
 
-	// Persist updated conversation
-	history = append(history, storedMessage{Role: "assistant", Content: fullResponse})
+	// Persist updated conversation — only store non-empty responses
+	if fullResponse != "" {
+		history = append(history, storedMessage{Role: "assistant", Content: fullResponse})
+	}
 	histBytes, err := json.Marshal(history)
 	if err != nil {
 		histBytes = []byte("[]")

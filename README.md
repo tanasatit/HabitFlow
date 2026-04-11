@@ -117,6 +117,63 @@ habitflow/
 
 ---
 
+## Running Tests
+
+### Backend
+
+```bash
+cd backend
+
+# Run all tests
+go test ./...
+
+# Run with coverage report
+go test ./internal/domain/habit/... ./internal/domain/user/... -cover
+
+# Run verbose with race detector
+go test -race -v ./...
+```
+
+Coverage targets: habit service ≥ 70%, user service ≥ 70%.
+
+---
+
+### Frontend
+
+```bash
+cd frontend
+
+# Run Jest unit + component tests (44 tests)
+npm test
+
+# Watch mode
+npm run test:watch
+```
+
+Tests cover:
+- Hooks: `useHabits`, `useAuth`, `useCalendar`
+- Components: `HabitCard`, `CalendarEventCard`, `ChatInput`
+
+---
+
+### E2E (Playwright)
+
+Requires a running backend (`localhost:8080`) and valid `.env.local`.
+
+```bash
+cd frontend
+
+# Install Playwright browsers (first time only)
+npx playwright install --with-deps chromium
+
+# Run smoke test (spawns next dev automatically)
+npm run test:e2e
+```
+
+The smoke spec registers a new user, creates a habit, logs completion, and verifies the streak on the dashboard.
+
+---
+
 ## Development Phases
 
 See [docs/context/PHASES.md](docs/context/PHASES.md) for the full roadmap.
@@ -130,8 +187,8 @@ See [docs/context/PHASES.md](docs/context/PHASES.md) for the full roadmap.
 | 5 | Admin Panel | Done |
 | 6 | Calendar & AI Coach | Done |
 | 7 | Google Calendar Sync | Done |
-| 8 | Google OAuth (Sign in with Google) | Pending |
-| 9 | Enhance UX/UI | Pending |
-| 10 | Testing | Pending |
+| 8 | Google OAuth (Sign in with Google) | Done |
+| 9 | Enhance UX/UI | Done |
+| 10 | Testing | Done |
 | 11 | DevSecOps Pipeline | Pending |
 | 12 | Polish & Submission | Pending |

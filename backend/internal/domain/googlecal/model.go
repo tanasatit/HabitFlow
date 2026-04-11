@@ -8,7 +8,7 @@ import (
 )
 
 type GoogleToken struct {
-	ID           uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID           uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID       uuid.UUID      `gorm:"type:uuid;uniqueIndex;not null"                 json:"user_id"`
 	AccessToken  string         `gorm:"not null"                                       json:"-"`
 	RefreshToken string         `gorm:"not null"                                       json:"-"`
@@ -19,6 +19,14 @@ type GoogleToken struct {
 	CreatedAt    time.Time      `                                                      json:"created_at"`
 	UpdatedAt    time.Time      `                                                      json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index"                                          json:"-"`
+}
+
+// BeforeCreate generates a UUID if one is not already set.
+func (g *GoogleToken) BeforeCreate(tx *gorm.DB) error {
+	if g.ID == (uuid.UUID{}) {
+		g.ID = uuid.New()
+	}
+	return nil
 }
 
 type GoogleCalendarEvent struct {

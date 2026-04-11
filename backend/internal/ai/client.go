@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -96,7 +97,9 @@ func (c *Client) StreamChat(ctx context.Context, req ChatRequest, ch chan<- Stre
 		if err == nil {
 			return resp, nil
 		}
+		log.Printf("gemini: failed, error: %v", err)
 		if c.openRouterKey != "" {
+			log.Printf("gemini: falling back to openrouter")
 			return c.streamOpenRouter(ctx, req, ch)
 		}
 		return nil, err
@@ -169,6 +172,9 @@ func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- St
 		case m.FunctionCall != nil:
 			parts = []geminiPart{{FunctionCall: m.FunctionCall}}
 		default:
+			if m.Content == "" {
+				continue // Gemini rejects empty text parts
+			}
 			parts = []geminiPart{{Text: m.Content}}
 		}
 		contents = append(contents, geminiContent{Role: role, Parts: parts})
@@ -205,6 +211,7 @@ func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- St
 
 	result := &ChatResponse{}
 	scanner := bufio.NewScanner(httpResp.Body)
+	scanner.Buffer(make([]byte, 64*1024), 10*1024*1024) // 10 MB max line
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data: ") {
@@ -217,11 +224,22 @@ func (c *Client) streamGemini(ctx context.Context, req ChatRequest, ch chan<- St
 
 		var chunk map[string]interface{}
 		if err := json.Unmarshal([]byte(data), &chunk); err != nil {
+			log.Printf("gemini: failed to parse SSE line: %v | raw: %.200s", err, data)
 			continue
+		}
+
+		// Surface API-level errors returned inside a 200 OK body
+		if errObj, ok := chunk["error"]; ok {
+			errBytes, _ := json.Marshal(errObj)
+			return result, fmt.Errorf("gemini API error: %s", string(errBytes))
 		}
 
 		candidates, _ := chunk["candidates"].([]interface{})
 		if len(candidates) == 0 {
+			// Log non-empty bodies that have no candidates (quota, safety, etc.)
+			if _, hasUsage := chunk["usageMetadata"]; !hasUsage {
+				log.Printf("gemini: chunk has no candidates: %.300s", data)
+			}
 			continue
 		}
 		candidate, _ := candidates[0].(map[string]interface{})
@@ -308,8 +326,14 @@ func (c *Client) streamOpenRouter(ctx context.Context, req ChatRequest, ch chan<
 	}
 	defer httpResp.Body.Close()
 
+	if httpResp.StatusCode >= 400 {
+		b, _ := io.ReadAll(httpResp.Body)
+		return nil, fmt.Errorf("openrouter error %d: %s", httpResp.StatusCode, string(b))
+	}
+
 	result := &ChatResponse{}
 	scanner := bufio.NewScanner(httpResp.Body)
+	scanner.Buffer(make([]byte, 64*1024), 10*1024*1024)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data: ") {

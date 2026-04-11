@@ -27,9 +27,6 @@ export function ChatInput({ onSend, disabled }: Props) {
   return (
     <div className="border-t border-outline px-4 py-3 bg-background">
       <div className="bg-surface border border-outline rounded-2xl flex items-center gap-2 px-4 py-2">
-        {/* Mic placeholder — no functionality */}
-        <span className="material-symbols-outlined text-on-background/30 text-[20px] flex-shrink-0" aria-hidden="true">mic</span>
-
         <textarea
           value={value}
           onChange={e => setValue(e.target.value)}
