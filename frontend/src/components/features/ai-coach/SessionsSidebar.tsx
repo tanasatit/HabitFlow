@@ -16,6 +16,7 @@ interface ChatSession {
   id: string
   title: string
   messages: StoredMessage[]
+  conversationId: string | null
   createdAt: number
 }
 
@@ -63,13 +64,17 @@ function formatDate(ts: number): string {
 interface Props {
   className?: string
   activeSessionId?: string | null
-  onSelectSession?: (messages: StoredMessage[]) => void
-  onNewSession?: () => void
+  currentMessages?: StoredMessage[]
+  currentConversationId?: string | null
+  onSelectSession?: (messages: StoredMessage[], conversationId: string | null) => void
+  onNewSession?: (newSessionId: string) => void
 }
 
 export function SessionsSidebar({
   className = '',
   activeSessionId,
+  currentMessages = [],
+  currentConversationId = null,
   onSelectSession,
   onNewSession,
 }: Props) {
@@ -83,23 +88,40 @@ export function SessionsSidebar({
   }, [])
 
   const handleNewSession = useCallback(() => {
+    // Save current session if it has messages
+    if (currentMessages.length > 0) {
+      setSessions(prev => {
+        const currentSession: ChatSession = {
+          id: activeSessionId ?? generateId(),
+          title: 'New Session',
+          messages: currentMessages,
+          conversationId: currentConversationId,
+          createdAt: Date.now(),
+        }
+        const withoutCurrent = prev.filter(s => s.id !== activeSessionId)
+        const updated = [currentSession, ...withoutCurrent]
+        saveSessions(updated)
+        return updated
+      })
+    }
     const newSession: ChatSession = {
       id: generateId(),
       title: 'New Session',
       messages: [],
+      conversationId: null,
       createdAt: Date.now(),
     }
-    setSessions((prev) => {
+    setSessions(prev => {
       const updated = [newSession, ...prev]
       saveSessions(updated)
       return updated
     })
-    onNewSession?.()
-  }, [onNewSession])
+    onNewSession?.(newSession.id)
+  }, [currentMessages, currentConversationId, activeSessionId, onNewSession])
 
   const handleSelectSession = useCallback(
     (session: ChatSession) => {
-      onSelectSession?.(session.messages)
+      onSelectSession?.(session.messages, session.conversationId ?? null)
     },
     [onSelectSession],
   )

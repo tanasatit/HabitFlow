@@ -68,8 +68,8 @@ habitflow/
 
 > **Update this section every time you start a new phase.**
 
-- Current Phase: `Phase 9 — Enhance UX/UI` ✅ complete
-- Current Task: `Phase 10 — Testing`
+- Current Phase: `Phase 10 — Testing` ✅ complete
+- Current Task: `Phase 11 — DevSecOps Pipeline`
 - Blocked By: `nothing`
 
 ---

@@ -372,3 +372,94 @@ func TestLogCompletion_DuplicateSameDay_Conflict(t *testing.T) {
 	r.ServeHTTP(logW2, logReq2)
 	require.Equal(t, http.StatusConflict, logW2.Code)
 }
+
+// ---------------------------------------------------------------------------
+// GET /api/v1/habits/:id/stats
+// ---------------------------------------------------------------------------
+
+func buildHabitRouterWithStats(t *testing.T, db *gorm.DB) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+
+	cfg := &config.Config{
+		JWTSecret:      habitTestSecret,
+		JWTExpiryHours: 24,
+	}
+
+	repo := habit.NewRepository(db)
+	svc := habit.NewService(repo)
+	h := habit.NewHandler(svc)
+
+	r := gin.New()
+	v1 := r.Group("/api/v1")
+	habits := v1.Group("/habits")
+	habits.Use(middleware.Auth(cfg))
+	{
+		habits.GET("", h.List)
+		habits.POST("", h.Create)
+		habits.GET("/:id", h.GetByID)
+		habits.PUT("/:id", h.Update)
+		habits.DELETE("/:id", h.Delete)
+		habits.POST("/:id/log", h.LogCompletion)
+		habits.GET("/:id/stats", h.GetStats)
+	}
+	return r
+}
+
+func TestGetStats_HappyPath(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	token := makeToken(t, userID, user.RoleFree)
+	r := buildHabitRouterWithStats(t, db)
+
+	// Create a habit via API.
+	createBody := habitJSON(map[string]string{"name": "Stats Habit"})
+	createReq := httptest.NewRequest(http.MethodPost, "/api/v1/habits", createBody)
+	createReq.Header.Set("Authorization", "Bearer "+token)
+	createReq.Header.Set("Content-Type", "application/json")
+	createW := httptest.NewRecorder()
+	r.ServeHTTP(createW, createReq)
+	require.Equal(t, http.StatusCreated, createW.Code)
+
+	var createResp map[string]interface{}
+	require.NoError(t, json.Unmarshal(createW.Body.Bytes(), &createResp))
+	habitID := createResp["data"].(map[string]interface{})["id"].(string)
+
+	// Fetch stats.
+	statsReq := httptest.NewRequest(http.MethodGet, "/api/v1/habits/"+habitID+"/stats", nil)
+	statsReq.Header.Set("Authorization", "Bearer "+token)
+	statsW := httptest.NewRecorder()
+	r.ServeHTTP(statsW, statsReq)
+	require.Equal(t, http.StatusOK, statsW.Code)
+
+	var statsResp map[string]interface{}
+	require.NoError(t, json.Unmarshal(statsW.Body.Bytes(), &statsResp))
+	data := statsResp["data"].(map[string]interface{})
+	require.Equal(t, habitID, data["habit_id"])
+}
+
+func TestGetStats_InvalidUUID(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	token := makeToken(t, userID, user.RoleFree)
+	r := buildHabitRouterWithStats(t, db)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/habits/not-a-uuid/stats", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestGetStats_NotFound(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	token := makeToken(t, userID, user.RoleFree)
+	r := buildHabitRouterWithStats(t, db)
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/habits/%s/stats", uuid.New()), nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusNotFound, w.Code)
+}

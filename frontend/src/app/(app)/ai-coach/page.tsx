@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAICoach } from '@/lib/hooks/useAICoach'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { ChatMessageList } from '@/components/features/ai-coach/ChatMessageList'
@@ -10,16 +10,39 @@ import { SuggestionChips } from '@/components/features/ai-coach/SuggestionChips'
 import { TypingIndicator } from '@/components/features/ai-coach/TypingIndicator'
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt'
 import { ChatSkeleton } from '@/components/ui/Skeleton'
+import type { IChatMessage } from '@/types/calendar'
 
 export default function AICoachPage() {
   const { user } = useAuth()
-  const { messages, isStreaming, send, abort } = useAICoach(user?.id ?? undefined)
+  const { messages, isStreaming, send, abort, reset, loadMessages, conversationId } = useAICoach(user?.id ?? undefined)
   const [mounted, setMounted] = useState(false)
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
   // Default to true while mounting so server renders the full UI (avoids hydration mismatch)
   const isPremium = mounted ? (user?.role === 'premium' || user?.role === 'admin') : true
+
+  const handleNewSession = useCallback((newSessionId: string) => {
+    reset()
+    setActiveSessionId(newSessionId)
+  }, [reset])
+
+  const handleSelectSession = useCallback((storedMessages: { id: string; role: 'user' | 'assistant'; content: string; timestamp: string }[], convId: string | null) => {
+    const restored: IChatMessage[] = storedMessages.map(m => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+    }))
+    loadMessages(restored, convId)
+  }, [loadMessages])
+
+  // Convert messages for sidebar (StoredMessage format)
+  const sidebarMessages = messages.map(m => ({
+    id: m.id,
+    role: m.role as 'user' | 'assistant',
+    content: m.content,
+    timestamp: m.timestamp.toISOString(),
+  }))
 
   if (mounted && !isPremium) {
     return (
@@ -53,10 +76,16 @@ export default function AICoachPage() {
 
       {/* Split layout */}
       <div className="flex flex-1 overflow-hidden">
-        <SessionsSidebar className="hidden lg:flex" />
+        <SessionsSidebar
+          className="hidden lg:flex"
+          activeSessionId={activeSessionId}
+          currentMessages={sidebarMessages}
+          currentConversationId={conversationId}
+          onNewSession={handleNewSession}
+          onSelectSession={handleSelectSession}
+        />
 
         <main className="flex-1 flex flex-col overflow-hidden">
-          {/* Loading skeleton when no messages and streaming hasn't started */}
           {!mounted ? (
             <ChatSkeleton />
           ) : (
@@ -70,7 +99,6 @@ export default function AICoachPage() {
                 )}
               </div>
 
-              {/* Suggestion chips when no messages */}
               {messages.length === 0 && !isStreaming && (
                 <div className="pb-2">
                   <SuggestionChips onSelect={(suggestion) => send(suggestion)} />
