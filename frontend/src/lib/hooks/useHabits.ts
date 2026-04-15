@@ -78,6 +78,36 @@ export function useHabits() {
     [fetchHabits],
   )
 
+  const undoCompletion = useCallback(
+    async (habitId: string): Promise<{ error?: string }> => {
+      // Optimistically flip completed_today immediately
+      setHabits(prev =>
+        prev.map(h => h.id === habitId ? { ...h, completed_today: false } : h)
+      )
+
+      const res = await api.delete<{ message: string }>(`/habits/${habitId}/log`)
+
+      if (res.error) {
+        // Revert optimistic update on failure
+        setHabits(prev =>
+          prev.map(h => h.id === habitId ? { ...h, completed_today: true } : h)
+        )
+        return { error: res.error }
+      }
+
+      // Fetch only the updated habit to get fresh streak data
+      const updated = await api.get<IHabitWithStreak>(`/habits/${habitId}`)
+      if (updated.data) {
+        setHabits(prev =>
+          prev.map(h => h.id === habitId ? updated.data! : h)
+        )
+      }
+
+      return {}
+    },
+    [],
+  )
+
   const logCompletion = useCallback(
     async (habitId: string, notes?: string): Promise<{ error?: string }> => {
       // Optimistically flip completed_today immediately
@@ -120,6 +150,7 @@ export function useHabits() {
     updateHabit,
     deleteHabit,
     logCompletion,
+    undoCompletion,
     refetch: fetchHabits,
   }
 }

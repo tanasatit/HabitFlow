@@ -184,6 +184,37 @@ func (h *Handler) GetStats(c *gin.Context) {
 	response.Success(c, stats)
 }
 
+// DeleteLog handles DELETE /api/v1/habits/:id/log — removes today's completion log.
+func (h *Handler) DeleteLog(c *gin.Context) {
+	habitID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "invalid habit id")
+		return
+	}
+
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.Unauthorized(c)
+		return
+	}
+
+	if err := h.svc.UndoCompletion(userID, habitID); err != nil {
+		switch {
+		case errors.Is(err, ErrHabitNotFound):
+			response.NotFound(c, err.Error())
+		case errors.Is(err, ErrNotOwner):
+			response.Error(c, http.StatusForbidden, err.Error())
+		case errors.Is(err, ErrNotLoggedToday):
+			response.Error(c, http.StatusConflict, err.Error())
+		default:
+			response.InternalError(c)
+		}
+		return
+	}
+
+	response.Success(c, gin.H{"message": "log deleted"})
+}
+
 func (h *Handler) LogCompletion(c *gin.Context) {
 	habitID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

@@ -22,7 +22,7 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
     scheduled_date: '',
     start_time: '',
     duration_minutes: 30,
-    color: '#14b8a6',
+    color: '#f97316',
   })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -36,7 +36,7 @@ export function EditEventModal({ event, onClose, onSaved, updateEvent, onDelete 
         scheduled_date: event.scheduled_date,
         start_time: event.start_time ?? '',
         duration_minutes: event.duration_minutes ?? 30,
-        color: event.color || '#14b8a6',
+        color: event.color || '#f97316',
       })
       setError(null)
     }

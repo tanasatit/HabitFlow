@@ -20,14 +20,14 @@ export function CreateEventModal({ isOpen, defaultDate, onClose, onCreated, crea
     scheduled_date: defaultDate,
     start_time: '09:00',
     duration_minutes: 30,
-    color: '#14b8a6',
+    color: '#f97316',
   })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   // Sync defaultDate when modal opens on a new day
   const handleOpen = () => {
-    setForm(prev => ({ ...prev, scheduled_date: defaultDate, color: '#14b8a6' }))
+    setForm(prev => ({ ...prev, scheduled_date: defaultDate, color: '#f97316' }))
     setError(null)
   }
 
@@ -57,7 +57,7 @@ export function CreateEventModal({ isOpen, defaultDate, onClose, onCreated, crea
       setError(result.error)
       return
     }
-    setForm({ title: '', description: '', scheduled_date: defaultDate, start_time: '09:00', duration_minutes: 30, color: '#14b8a6' })
+    setForm({ title: '', description: '', scheduled_date: defaultDate, start_time: '09:00', duration_minutes: 30, color: '#f97316' })
     onCreated()
     onClose()
   }

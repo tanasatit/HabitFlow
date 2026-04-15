@@ -1,5 +1,6 @@
 'use client'
 
+import type React from 'react'
 import { ICalendarEvent } from '@/types/calendar'
 
 interface Props {
@@ -24,16 +25,21 @@ function getSourceBadgeClasses(source: ICalendarEvent['source']): string {
 
 export function CalendarEventCard({ event, style, onDelete, onDragStart, onClick }: Props) {
   const isPositioned = !!(style && style.position === 'absolute')
-  const sourceClasses = getSourceClasses(event.source)
+  const customColor = event.color || null
+  const sourceClass = customColor ? '' : getSourceClasses(event.source)
   const badgeClasses = getSourceBadgeClasses(event.source)
+  const inlineStyle: React.CSSProperties = {
+    ...style,
+    ...(customColor ? { backgroundColor: customColor } : {}),
+  }
 
   return (
     <div
       draggable={!!onDragStart}
       onDragStart={onDragStart ? (e) => onDragStart(e, event.id) : undefined}
       onClick={onClick ? (e) => { e.stopPropagation(); onClick(event) } : undefined}
-      className={`group relative rounded-2xl cursor-grab active:cursor-grabbing select-none overflow-hidden hover:scale-[1.02] transition-transform duration-150 ${sourceClasses}`}
-      style={style}
+      className={`group relative rounded-2xl cursor-grab active:cursor-grabbing select-none overflow-hidden hover:scale-[1.02] transition-transform duration-150 text-white ${sourceClass}`}
+      style={inlineStyle}
     >
       <div className="px-1.5 py-1 h-full overflow-hidden">
         <div className="flex items-start justify-between gap-1">

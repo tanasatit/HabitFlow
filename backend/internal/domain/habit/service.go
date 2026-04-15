@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	ErrHabitNotFound = errors.New("habit not found")
-	ErrNotOwner      = errors.New("you do not own this habit")
-	ErrAlreadyLogged = errors.New("habit already logged today")
+	ErrHabitNotFound  = errors.New("habit not found")
+	ErrNotOwner       = errors.New("you do not own this habit")
+	ErrAlreadyLogged  = errors.New("habit already logged today")
+	ErrNotLoggedToday = errors.New("habit not logged today")
 )
 
 type Service struct {
@@ -199,6 +200,28 @@ func (s *Service) LogCompletion(userID, habitID uuid.UUID, input LogInput) (*Hab
 	}
 
 	return log, nil
+}
+
+// UndoCompletion deletes today's log entry for a habit, effectively unchecking it.
+func (s *Service) UndoCompletion(userID, habitID uuid.UUID) error {
+	h, err := s.repo.FindByID(habitID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrHabitNotFound
+		}
+		return err
+	}
+	if h.UserID != userID {
+		return ErrNotOwner
+	}
+	_, logErr := s.repo.FindLogByHabitAndDate(habitID, time.Now())
+	if errors.Is(logErr, gorm.ErrRecordNotFound) {
+		return ErrNotLoggedToday
+	}
+	if logErr != nil {
+		return logErr
+	}
+	return s.repo.DeleteTodayLog(habitID)
 }
 
 // GetHabitStats returns detailed statistics for a single habit.

@@ -216,7 +216,7 @@ func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call intern
 	case internalai.ToolGetUserHabits:
 		habits, err := s.habitRepo.FindByUserID(userID)
 		if err != nil {
-			return "", err
+			return "Unable to fetch habits: " + err.Error(), nil
 		}
 		b, _ := json.Marshal(habits)
 		return string(b), nil
@@ -224,7 +224,7 @@ func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call intern
 	case internalai.ToolGetUserStats:
 		stats, err := s.dashSvc.GetDashboard(userID)
 		if err != nil {
-			return "", err
+			return "Unable to fetch stats: " + err.Error(), nil
 		}
 		b, _ := json.Marshal(stats)
 		return string(b), nil
@@ -234,7 +234,7 @@ func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call intern
 		endDate, _ := call.Args["end_date"].(string)
 		events, err := s.calendarSvc.GetEvents(userID, startDate, endDate)
 		if err != nil {
-			return "", err
+			return "Unable to fetch calendar events: " + err.Error(), nil
 		}
 		b, _ := json.Marshal(events)
 		return string(b), nil
@@ -273,31 +273,32 @@ func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call intern
 
 	case internalai.ToolReadGoogleCalendar:
 		if s.googleCalSvc == nil {
-			return "google calendar not configured", nil
+			return "Google Calendar is not configured on this server.", nil
 		}
 		startDate, _ := call.Args["start_date"].(string)
 		endDate, _ := call.Args["end_date"].(string)
 		events, err := s.googleCalSvc.ReadEvents(ctx, userID, startDate, endDate)
 		if err != nil {
-			return "", err
+			log.Printf("aicoach: read_google_calendar failed for user %s: %v", userID, err)
+			return "Unable to read Google Calendar: " + err.Error() + ". Please ask the user to reconnect their Google Calendar in Settings.", nil
 		}
 		b, _ := json.Marshal(events)
 		return string(b), nil
 
 	case internalai.ToolWriteGoogleCalendar:
 		if s.googleCalSvc == nil {
-			return "google calendar not configured", nil
+			return "Google Calendar is not configured on this server.", nil
 		}
 		eventsRaw, _ := call.Args["events"].([]interface{})
 
 		// Marshal/unmarshal to convert []interface{} -> []CreateGoogleEventInput
 		rawBytes, err := json.Marshal(eventsRaw)
 		if err != nil {
-			return "", fmt.Errorf("marshal google events: %w", err)
+			return "Failed to parse event data: " + err.Error(), nil
 		}
 		var inputs []googlecal.CreateGoogleEventInput
 		if err := json.Unmarshal(rawBytes, &inputs); err != nil {
-			return "", fmt.Errorf("unmarshal google events: %w", err)
+			return "Failed to parse event data: " + err.Error(), nil
 		}
 		if len(inputs) == 0 {
 			return "no valid events provided", nil
@@ -306,7 +307,8 @@ func (s *Service) executeTool(ctx context.Context, userID uuid.UUID, call intern
 		// Write to Google Calendar
 		created, err := s.googleCalSvc.WriteEvents(ctx, userID, inputs)
 		if err != nil {
-			return "", err
+			log.Printf("aicoach: write_google_calendar failed for user %s: %v", userID, err)
+			return "Unable to write to Google Calendar: " + err.Error() + ". Please ask the user to reconnect their Google Calendar in Settings.", nil
 		}
 
 		// Also save each event to local calendar_events with source="google",
