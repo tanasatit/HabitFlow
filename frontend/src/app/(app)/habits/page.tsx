@@ -14,22 +14,19 @@ import { HabitsGridSkeleton } from '@/components/ui/Skeleton'
 
 export default function HabitsPage() {
   const router = useRouter()
-  const { habits, loading, error, createHabit, logCompletion, deleteHabit } = useHabits()
+  const { habits, loading, error, createHabit, logCompletion, undoCompletion, deleteHabit } = useHabits()
   const { showToast } = useToast()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   async function handleToggleComplete(habitId: string) {
-    const result = await logCompletion(habitId)
+    const habit = habits.find(h => h.id === habitId)
+    const fn = habit?.completed_today ? undoCompletion : logCompletion
+    const result = await fn(habitId)
     if (result.error) {
-      showToast(
-        result.error.toLowerCase().includes('already logged')
-          ? 'Already completed for today.'
-          : result.error,
-        'error',
-      )
+      showToast(result.error, 'error')
     } else {
-      showToast('Habit marked complete!', 'success')
+      showToast(habit?.completed_today ? 'Habit unchecked.' : 'Habit marked complete!', 'success')
     }
   }
 

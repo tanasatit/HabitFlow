@@ -25,5 +25,10 @@ export function useDashboard() {
     fetchDashboard()
   }, [fetchDashboard])
 
-  return { stats, loading, error, refetch: fetchDashboard }
+  const silentRefetch = useCallback(async (): Promise<void> => {
+    const res = await api.get<IDashboardStats>('/dashboard')
+    if (!res.error && res.data) setStats(res.data)
+  }, [])
+
+  return { stats, loading, error, refetch: fetchDashboard, silentRefetch }
 }

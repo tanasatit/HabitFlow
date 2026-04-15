@@ -119,3 +119,13 @@ func (r *Repository) FindLogsByHabitIDSince(habitID uuid.UUID, since time.Time) 
 	}
 	return logs, nil
 }
+
+// DeleteTodayLog removes the completion log for a habit logged today.
+func (r *Repository) DeleteTodayLog(habitID uuid.UUID) error {
+	today := time.Now().Truncate(24 * time.Hour)
+	tomorrow := today.Add(24 * time.Hour)
+	return r.db.Where(
+		"habit_id = ? AND completed_at >= ? AND completed_at < ?",
+		habitID, today, tomorrow,
+	).Delete(&HabitLog{}).Error
+}

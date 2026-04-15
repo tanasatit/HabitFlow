@@ -17,8 +17,8 @@ import { DashboardSkeleton } from '@/components/ui/Skeleton'
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { habits, loading: habitsLoading, logCompletion } = useHabits()
-  const { stats, loading: dashLoading, error: dashError, refetch: refetchDashboard } =
+  const { habits, loading: habitsLoading, logCompletion, undoCompletion } = useHabits()
+  const { stats, loading: dashLoading, error: dashError, refetch: refetchDashboard, silentRefetch } =
     useDashboard()
   const { showToast } = useToast()
 
@@ -26,7 +26,9 @@ export default function DashboardPage() {
 
   const handleToggle = useCallback(
     async (habitId: string) => {
-      const result = await logCompletion(habitId)
+      const habit = habits.find(h => h.id === habitId)
+      const fn = habit?.completed_today ? undoCompletion : logCompletion
+      const result = await fn(habitId)
       if (result.error) {
         showToast(
           result.error.toLowerCase().includes('already logged')
@@ -34,10 +36,11 @@ export default function DashboardPage() {
             : result.error,
           'error',
         )
+      } else {
+        await silentRefetch()
       }
-      await refetchDashboard()
     },
-    [logCompletion, refetchDashboard, showToast],
+    [habits, logCompletion, undoCompletion, silentRefetch, showToast],
   )
 
   const firstName = user?.name ? user.name.split(' ')[0] : null

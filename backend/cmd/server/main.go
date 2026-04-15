@@ -125,6 +125,7 @@ func main() {
 			habits.PUT("/:id", habitHandler.Update)
 			habits.DELETE("/:id", habitHandler.Delete)
 			habits.POST("/:id/log", habitHandler.LogCompletion)
+			habits.DELETE("/:id/log", habitHandler.DeleteLog)
 			habits.GET("/:id/stats", habitHandler.GetStats)
 		}
 
