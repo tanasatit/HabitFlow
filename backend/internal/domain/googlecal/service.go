@@ -229,8 +229,16 @@ func (s *Service) ReadEvents(ctx context.Context, userID uuid.UUID, startDate, e
 		return nil, err
 	}
 
-	timeMin := startDate + "T00:00:00Z"
-	timeMax := endDate + "T23:59:59Z"
+	loc, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		loc = time.UTC
+	}
+	startParsed, _ := time.ParseInLocation("2006-01-02", startDate, loc)
+	endParsed, _ := time.ParseInLocation("2006-01-02", endDate, loc)
+	endParsed = endParsed.Add(24*time.Hour - time.Second)
+
+	timeMin := startParsed.UTC().Format(time.RFC3339)
+	timeMax := endParsed.UTC().Format(time.RFC3339)
 
 	events, err := svc.Events.List("primary").
 		TimeMin(timeMin).
@@ -301,16 +309,20 @@ func (s *Service) UpdateEvent(ctx context.Context, userID uuid.UUID, googleEvent
 		existing.Description = description
 	}
 	if scheduledDate != "" && startTime != "" {
+		loc, err := time.LoadLocation("Asia/Bangkok")
+		if err != nil {
+			loc = time.UTC
+		}
 		startDT := fmt.Sprintf("%sT%s:00", scheduledDate, startTime)
-		t, parseErr := time.Parse("2006-01-02T15:04:05", startDT)
+		t, parseErr := time.ParseInLocation("2006-01-02T15:04:05", startDT, loc)
 		if parseErr == nil {
 			dur := durationMinutes
 			if dur <= 0 {
 				dur = 30
 			}
 			end := t.Add(time.Duration(dur) * time.Minute)
-			existing.Start = &gcal.EventDateTime{DateTime: t.Format(time.RFC3339), TimeZone: "UTC"}
-			existing.End = &gcal.EventDateTime{DateTime: end.Format(time.RFC3339), TimeZone: "UTC"}
+			existing.Start = &gcal.EventDateTime{DateTime: t.Format(time.RFC3339), TimeZone: "Asia/Bangkok"}
+			existing.End = &gcal.EventDateTime{DateTime: end.Format(time.RFC3339), TimeZone: "Asia/Bangkok"}
 		}
 	}
 	_, err = svc.Events.Update("primary", googleEventID, existing).Do()
@@ -323,11 +335,16 @@ func (s *Service) WriteEvents(ctx context.Context, userID uuid.UUID, inputs []Cr
 		return nil, err
 	}
 
+	loc, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		loc = time.UTC
+	}
+
 	created := make([]GoogleCalendarEvent, 0, len(inputs))
 	var errs []string
 	for _, input := range inputs {
 		startDT := fmt.Sprintf("%sT%s:00", input.ScheduledDate, input.StartTime)
-		startTime, err := time.Parse("2006-01-02T15:04:05", startDT)
+		startTime, err := time.ParseInLocation("2006-01-02T15:04:05", startDT, loc)
 		if err != nil {
 			errs = append(errs, fmt.Sprintf("%s: invalid time format: %v", input.Title, err))
 			continue
@@ -339,11 +356,11 @@ func (s *Service) WriteEvents(ctx context.Context, userID uuid.UUID, inputs []Cr
 			Description: input.Description,
 			Start: &gcal.EventDateTime{
 				DateTime: startTime.Format(time.RFC3339),
-				TimeZone: "UTC",
+				TimeZone: "Asia/Bangkok",
 			},
 			End: &gcal.EventDateTime{
 				DateTime: endTime.Format(time.RFC3339),
-				TimeZone: "UTC",
+				TimeZone: "Asia/Bangkok",
 			},
 		}
 		createdEvent, err := svc.Events.Insert("primary", event).Do()

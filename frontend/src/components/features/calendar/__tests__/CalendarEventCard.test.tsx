@@ -14,7 +14,7 @@ const makeEvent = (overrides: Partial<ICalendarEvent> = {}): ICalendarEvent => (
   duration_minutes: 30,
   source: 'manual',
   is_completed: false,
-  color: '#FF8243',
+  color: '',
   created_at: '2026-04-11T00:00:00Z',
   updated_at: '2026-04-11T00:00:00Z',
   ...overrides,

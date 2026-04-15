@@ -421,6 +421,85 @@ func TestService_Delete_NotFound(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// Service.UndoCompletion
+// ---------------------------------------------------------------------------
+
+func TestService_UndoCompletion_Success(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	svc := habit.NewService(habit.NewRepository(db))
+
+	h, err := svc.Create(userID, habit.CreateInput{Name: "Undo Me"})
+	require.NoError(t, err)
+
+	_, err = svc.LogCompletion(userID, h.ID, habit.LogInput{})
+	require.NoError(t, err)
+
+	err = svc.UndoCompletion(userID, h.ID)
+	require.NoError(t, err)
+
+	// Should be possible to log again after undo.
+	_, err = svc.LogCompletion(userID, h.ID, habit.LogInput{})
+	require.NoError(t, err)
+}
+
+func TestService_UndoCompletion_NotLoggedToday(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	svc := habit.NewService(habit.NewRepository(db))
+
+	h, err := svc.Create(userID, habit.CreateInput{Name: "Not Done"})
+	require.NoError(t, err)
+
+	err = svc.UndoCompletion(userID, h.ID)
+	require.ErrorIs(t, err, habit.ErrNotLoggedToday)
+}
+
+func TestService_UndoCompletion_NotOwner(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	ownerID := uuid.New()
+	otherID := uuid.New()
+	svc := habit.NewService(habit.NewRepository(db))
+
+	h, err := svc.Create(ownerID, habit.CreateInput{Name: "Owned"})
+	require.NoError(t, err)
+
+	err = svc.UndoCompletion(otherID, h.ID)
+	require.ErrorIs(t, err, habit.ErrNotOwner)
+}
+
+func TestService_UndoCompletion_HabitNotFound(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	svc := habit.NewService(habit.NewRepository(db))
+
+	err := svc.UndoCompletion(userID, uuid.New())
+	require.ErrorIs(t, err, habit.ErrHabitNotFound)
+}
+
+// ---------------------------------------------------------------------------
+// Service.List — completedToday flag is set when today's log exists
+// ---------------------------------------------------------------------------
+
+func TestService_List_CompletedToday(t *testing.T) {
+	db := testutil.NewTestDB(t)
+	userID := uuid.New()
+	svc := habit.NewService(habit.NewRepository(db))
+
+	h, err := svc.Create(userID, habit.CreateInput{Name: "Done Today"})
+	require.NoError(t, err)
+
+	_, err = svc.LogCompletion(userID, h.ID, habit.LogInput{})
+	require.NoError(t, err)
+
+	list, err := svc.List(userID)
+	require.NoError(t, err)
+	require.Len(t, list, 1)
+	require.True(t, list[0].CompletedToday)
+	require.Equal(t, 1, list[0].CurrentStreak)
+}
+
+// ---------------------------------------------------------------------------
 // Repository: FindLogsByHabitID, FindLogsByUserIDSince, FindLogsByHabitIDSince
 // ---------------------------------------------------------------------------
 
